@@ -5,6 +5,12 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { autoUpdater } from 'electron-updater'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const path = require('path')
+const Datastore = require('nedb')
+const db = new Datastore({
+  filename: path.join(app.getPath('userData'), 'db.db'),
+  autoload: true
+})
 
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
@@ -69,6 +75,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
+  db.persistence.compactDatafile()
   mainWindow = await createWindow()
   await autoUpdater.checkForUpdates()
 })
@@ -113,7 +120,7 @@ ipcMain.on('install-update', async () => {
 })
 ipcMain.on('close-window', event => {
   console.log('trying to kill window')
-  BrowserWindow.fromId(event.frameId).close()
+  BrowserWindow.fromId(event.frameId).destroy()
 })
 ipcMain.on('maximize-window', event => {
   let win = BrowserWindow.fromId(event.frameId)
@@ -121,4 +128,30 @@ ipcMain.on('maximize-window', event => {
 })
 ipcMain.on('minimize-window', event => {
   BrowserWindow.fromId(event.frameId).minimize()
+})
+
+ipcMain.on('getEm', (evt, searchObj) => {
+  db.find(searchObj, (err, docs) => {
+    if (err) {
+      throw err
+    }
+    console.log(docs)
+    evt.reply('postEm', docs)
+  })
+})
+
+ipcMain.on('addEm', (evt, em) => {
+  console.log('Inserting EM')
+  db.insert(em, (err, newEm) => {
+    console.log('Replying with: ' + newEm)
+    evt.reply('emAdded', newEm)
+  })
+})
+ipcMain.on('editEm', (evt, em) => {
+  console.log('Updating EM')
+  db.update({ _id: em._id }, em)
+})
+ipcMain.on('deleteEm', (evt, em) => {
+  console.log('Deleting EM ' + em._id)
+  db.remove({ _id: em._id })
 })
