@@ -1,11 +1,15 @@
 <template>
-  <div class="home">Hallo</div>
+  <v-row class="fill-height">
+    <v-col class="fill-height">
+      <AlarmListe />
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-// @ is an alias to /src
+import AlarmListe from '@/renderer/components/AlarmListe/TheAlarmListe'
 
 export default {
-  name: 'Home'
+  components: { AlarmListe }
 }
 </script>

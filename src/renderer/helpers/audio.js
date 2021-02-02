@@ -1,5 +1,3 @@
-import autoCorrelate from './autoCorrelate'
-
 async function getUserAudio() {
   return await navigator.mediaDevices.getUserMedia({ audio: true })
 }

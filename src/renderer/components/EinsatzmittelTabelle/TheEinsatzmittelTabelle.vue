@@ -74,10 +74,10 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
 import variables from '../../styles/_variables.scss'
 import EinsatzmittelDialog from '@/renderer/components/EinsatzmittelTabelle/EinsatzmittelDialog'
 import DeleteEinsatzmittelDialog from '@/renderer/components/EinsatzmittelTabelle/DeleteEinsatzmittelDialog'
+
 export default {
   name: 'EinsatzmittelTabelle',
   components: { DeleteEinsatzmittelDialog, EinsatzmittelDialog },
@@ -123,13 +123,10 @@ export default {
     }
   },
   async mounted() {
-    ipcRenderer.send('getEm', {})
-    this.loading = true
-
-    ipcRenderer.on('postEm', (event, em) => {
-      this.einsatzmittel = em
-      this.loading = false
-    })
+    this.einsatzmittel = this.$store.getters.getEinsatzmittel
+  },
+  beforeDestroy() {
+    this.$store.dispatch('updateEinsatzmittel', this.einsatzmittel)
   }
 }
 </script>
