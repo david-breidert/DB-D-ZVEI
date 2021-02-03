@@ -1,6 +1,6 @@
 <template>
   <v-sheet class="fill-height elevation-3" rounded>
-    <v-list class="fill-height flex-column-reverse">
+    <v-list dense class="fill-height flex-column-reverse rounded-b">
       <template v-for="(alarm, index) in reverseAlarme">
         <v-list-item :key="index">
           <v-list-item-icon>
@@ -63,14 +63,16 @@ export default {
 
 .v-list {
   background-color: transparent;
+  padding: 0;
+  overflow: auto;
 }
 
-::v-deep ::-webkit-scrollbar-track {
-  margin-top: 38px;
-  margin-bottom: 5px;
+.v-list-item:first-child:hover::before {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
-.theme--dark.v-btn:focus::before {
-  opacity: 0;
+::-webkit-scrollbar {
+  display: none;
 }
 </style>

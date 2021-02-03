@@ -1,6 +1,12 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain } from 'electron'
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  ipcMain,
+  powerSaveBlocker
+} from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { autoUpdater } from 'electron-updater'
@@ -12,9 +18,11 @@ const db = new Datastore({
   autoload: true
 })
 
+app.commandLine.appendSwitch('disable-renderer-backgrounding')
+powerSaveBlocker.start('prevent-app-suspension')
+
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
-
 let mainWindow
 
 // Scheme must be registered before the app is ready
@@ -32,7 +40,8 @@ async function createWindow() {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       enableRemoteModule: true,
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      backgroundThrottling: false
     }
   })
 
