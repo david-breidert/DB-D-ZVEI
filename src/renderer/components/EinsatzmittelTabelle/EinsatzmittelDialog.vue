@@ -78,7 +78,7 @@ export default {
           einsatzmittel: this.changedEm.einsatzmittel,
           tonfolge: this.changedEm.tonfolge
         })
-        ipcRenderer.on('emAdded', (evt, em) => {
+        ipcRenderer.once('emAdded', (evt, em) => {
           this.$emit('addEm', em)
         })
       }
@@ -102,6 +102,9 @@ export default {
         }
       }
     }
+  },
+  beforeDestroy() {
+    console.log('destroying dialog')
   }
 }
 </script>

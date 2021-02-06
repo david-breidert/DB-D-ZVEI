@@ -67,11 +67,11 @@ export default {
     }
 
     &:last-child::before {
-      color: #b71c1c;
+      color: var(--v-error-base);
     }
 
     &:last-child:hover::before {
-      opacity: 100%;
+      opacity: 100% !important;
     }
   }
 }

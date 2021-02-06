@@ -34,7 +34,9 @@
             </v-text-field>
           </v-col>
           <v-col class="d-flex justify-center align-center">
-            <v-btn @click.stop="newEmDialog" text></v-btn>
+            <v-btn @click.stop="newEmDialog" text>
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
           </v-col>
         </v-row>
       </template>
