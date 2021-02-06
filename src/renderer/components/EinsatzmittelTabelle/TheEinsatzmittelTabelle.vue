@@ -90,16 +90,21 @@ export default {
       { text: '', value: 'actions', sortable: false }
     ],
     search: '',
-    einsatzmittel: [],
     loading: false,
     sortBy: 'tonfolge',
     sortDesc: false,
     selected: null,
+    einsatzmittel: [],
     variables: variables,
     selectedEm: null,
     dialog: false,
     deleteDialog: false
   }),
+  computed: {
+    stateEMs() {
+      return this.$store.getters.getEinsatzmittel
+    }
+  },
   methods: {
     newEmDialog() {
       this.selectedEm = null

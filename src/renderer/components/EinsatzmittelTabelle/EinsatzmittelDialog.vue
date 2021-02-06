@@ -51,7 +51,7 @@ export default {
       tonfolge: null
     }
   }),
-  props: ['dialog', 'em'],
+  props: ['dialog', 'em', 'tf'],
   computed: {
     show: {
       get() {
@@ -90,6 +90,15 @@ export default {
       if (newVal === true) {
         if (this.em) {
           Object.assign(this.changedEm, this.em)
+          this.changedEm.tonfolge = this.changedEm.tonfolge
+            .toString()
+            .replace(/,/g, '')
+        } else if (this.tf && !this.em) {
+          Object.assign(this.changedEm, {
+            _id: null,
+            einsatzmittel: null,
+            tonfolge: this.tf
+          })
           this.changedEm.tonfolge = this.changedEm.tonfolge
             .toString()
             .replace(/,/g, '')

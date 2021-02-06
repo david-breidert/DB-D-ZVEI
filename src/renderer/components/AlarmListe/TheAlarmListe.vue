@@ -21,8 +21,20 @@
                     'success--text': tf.confidence === 2,
                     'warning--text': tf.confidence === 1
                   }"
-                  >{{ tf.em ? tf.em.einsatzmittel : tf.tf }}</span
+                  >{{ tf.em ? tf.em.einsatzmittel : tf.tf }}
+                </span>
+                <v-btn
+                  v-if="!tf.em"
+                  x-small
+                  :key="tf.zeitstempel + '-button'"
+                  text
+                  icon
+                  class="ml-1"
+                  @click="addEmFromTonfolge(tf.tf)"
                 >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+
                 <span
                   v-if="!(i === alarm.tonfolge.length - 1)"
                   :key="tf.zeitstempel + '-divider'"
@@ -36,16 +48,26 @@
         <v-divider :key="index + '-divider'" />
       </template>
     </v-list>
+    <EinsatzmittelDialog
+      v-model="dialog"
+      :dialog="dialog"
+      :tf="tfToAdd"
+      @addEm="addEm"
+    ></EinsatzmittelDialog>
   </v-sheet>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import EinsatzmittelDialog from '@/renderer/components/EinsatzmittelTabelle/EinsatzmittelDialog'
 
 export default {
   data: () => ({
-    currentlyPlaying: null
+    currentlyPlaying: null,
+    tfToAdd: null,
+    dialog: false
   }),
+  components: { EinsatzmittelDialog },
   computed: {
     ...mapGetters(['getAlleAlarme']),
     reverseAlarme() {
@@ -60,6 +82,13 @@ export default {
         minute: '2-digit',
         second: '2-digit'
       })
+    },
+    addEmFromTonfolge(tf) {
+      this.tfToAdd = tf
+      this.dialog = true
+    },
+    addEm(em) {
+      this.$store.dispatch('addEinsatzmittel', em)
     }
   }
 }
