@@ -5,9 +5,10 @@
         <v-list-item :key="index">
           <v-list-item-icon>
             <v-chip small outlined label color="primary">
-              <v-icon small>
+              <v-icon left small>
                 mdi-bell-ring
               </v-icon>
+              {{ getAlarmTimeString(alarm) }}
             </v-chip>
           </v-list-item-icon>
 
@@ -49,6 +50,16 @@ export default {
     ...mapGetters(['getAlleAlarme']),
     reverseAlarme() {
       return this.getAlleAlarme.slice().reverse()
+    }
+  },
+  methods: {
+    getAlarmTimeString(alarm) {
+      let date = new Date(alarm.tonfolge[0].zeitstempel)
+      return date.toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
     }
   }
 }
