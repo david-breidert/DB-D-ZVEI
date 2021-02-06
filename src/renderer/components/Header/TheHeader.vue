@@ -1,8 +1,6 @@
 <template>
   <v-system-bar app color="#202225">
     <div class="titleBar-drag-region"></div>
-    <v-icon>mdi-message</v-icon>
-    <span>10 unread messages</span>
     <v-spacer></v-spacer>
     <v-btn text tile @click="minimizeWindow()">
       <v-icon x-small>mdi-minus</v-icon>
@@ -69,7 +67,7 @@ export default {
     }
 
     &:last-child::before {
-      color: var(--v-error-base);
+      color: #b71c1c;
     }
 
     &:last-child:hover::before {
