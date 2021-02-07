@@ -71,7 +71,7 @@ export default {
     }
 
     &:last-child:hover::before {
-      opacity: 100% !important;
+      opacity: 0.8;
     }
   }
 }
