@@ -1,11 +1,31 @@
 <template>
   <v-row class="fill-height">
-    <v-col cols="8" class="fill-height">
+    <v-col
+      cols="12"
+      md="8"
+      lg="9"
+      :style="$vuetify.breakpoint.smAndDown ? { height: '80%' } : ''"
+    >
       <AlarmListe />
     </v-col>
-    <v-col class="fill-height d-flex flex-column">
-      <Uhr class="mb-3" />
-      <Activity class=" mt-3" />
+    <v-col
+      class="d-flex"
+      :class="{ 'flex-column': $vuetify.breakpoint.mdAndUp }"
+    >
+      <Uhr
+        style="flex-basis: 50%"
+        :class="{
+          'mb-3': $vuetify.breakpoint.mdAndUp,
+          'mr-3': $vuetify.breakpoint.smAndDown
+        }"
+      />
+      <Activity
+        style="flex-basis: 50%"
+        :class="{
+          'mt-3': $vuetify.breakpoint.mdAndUp,
+          'ml-3': $vuetify.breakpoint.smAndDown
+        }"
+      />
     </v-col>
   </v-row>
 </template>

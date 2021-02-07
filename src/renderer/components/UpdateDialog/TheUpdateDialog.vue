@@ -78,6 +78,7 @@ export default {
     ipcRenderer.on('download-progress', (event, progressData) => {
       console.log(progressData)
       this.downloadProgress = progressData.percent
+      console.log('Lade herunter: ' + progressData.percent)
     })
   }
 }
