@@ -64,7 +64,7 @@ export default {
       )
       // this.$store.dispatch('updateCurrentFrequency', currentFrequency)
       if (currentFrequency !== -1) {
-        // this.$store.dispatch('updateLastTimeReceived', Date.now())
+        this.$store.dispatch('updateLastTimeReceived', Date.now())
         const currentTon = getTonNummer(currentFrequency)
         if (currentTon !== -1) {
           this.tonFolgeGesamt.push(currentTon)

@@ -159,8 +159,11 @@ export default {
   border-bottom: none;
 }
 
-.v-icon.v-icon::after {
-  background-color: transparent;
+.v-icon.v-icon:focus::after {
+  opacity: 0;
+}
+.v-icon.v-icon:hover::after {
+  opacity: 0.24;
 }
 
 ::v-deep .v-data-table__wrapper {

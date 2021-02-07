@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="fill-height elevation-3" rounded>
+  <v-sheet class="fill-height elevation-2" rounded>
     <v-list dense class="fill-height flex-column-reverse rounded-b">
       <template v-for="(alarm, index) in reverseAlarme">
         <v-list-item :key="index">
@@ -13,7 +13,7 @@
           </v-list-item-icon>
 
           <v-list-item-content class="d-flex">
-            <v-list-item-title>
+            <span>
               <template v-for="(tf, i) in alarm.tonfolge">
                 <span
                   :key="tf.zeitstempel"
@@ -23,17 +23,13 @@
                   }"
                   >{{ tf.em ? tf.em.einsatzmittel : tf.tf }}
                 </span>
-                <v-btn
+                <v-icon
                   v-if="!tf.em"
-                  x-small
                   :key="tf.zeitstempel + '-button'"
-                  text
-                  icon
-                  class="ml-1"
+                  x-small
                   @click="addEmFromTonfolge(tf.tf)"
+                  >mdi-plus</v-icon
                 >
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
 
                 <span
                   v-if="!(i === alarm.tonfolge.length - 1)"
@@ -42,7 +38,7 @@
                   -
                 </span>
               </template>
-            </v-list-item-title>
+            </span>
           </v-list-item-content>
         </v-list-item>
         <v-divider :key="index + '-divider'" />
@@ -95,12 +91,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.row {
-  width: 100%;
-  margin-right: 0;
-  margin-left: 0;
-}
-
 .v-list {
   background-color: transparent;
   padding: 0;
@@ -114,5 +104,12 @@ export default {
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+.v-icon.v-icon:focus::after {
+  opacity: 0;
+}
+.v-icon.v-icon:hover::after {
+  opacity: 0.24;
 }
 </style>
