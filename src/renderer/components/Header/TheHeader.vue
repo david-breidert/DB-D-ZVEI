@@ -1,6 +1,11 @@
 <template>
   <v-system-bar app color="#202225">
     <div class="titleBar-drag-region"></div>
+    <div class="d-flex justify-space-between">
+      <span>v{{ appVersion }}</span>
+    </div>
+    <v-spacer></v-spacer>
+    <span>DB - D - ZVEI</span>
     <v-spacer></v-spacer>
     <v-btn text tile @click="minimizeWindow()">
       <v-icon x-small>mdi-minus</v-icon>

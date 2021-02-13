@@ -4,16 +4,18 @@
       :headers="headers"
       :items="einsatzmittel"
       :loading="loading"
+      loading-text="Lade Einsatzmittel"
       item-key="_id"
       dense
       fixed-header
       :search="search"
+      :custom-filter="searchFilter"
       :sort-by.sync="sortBy"
       :sort-desc.sync="sortDesc"
       hide-default-footer
       must-sort
       disable-pagination
-      class="transparent ma-2"
+      class="transparent mx-2"
     >
       <template v-slot:top>
         <v-row no-gutters class="flex-nowrap">
@@ -43,7 +45,7 @@
       <template v-slot:item="{ item }">
         <tr @dblclick="editEmDialog(item)" :key="item._id">
           <td>{{ item.einsatzmittel }}</td>
-          <td>{{ item.tonfolge.toString().replace(/,/g, ' - ') }}</td>
+          <td>{{ item.tonfolge.toString().replace(/,/g, '') }}</td>
           <td>
             <v-icon small class="mr-2" @click.stop="editEmDialog(item)">
               mdi-pencil
@@ -79,6 +81,7 @@
 import variables from '../../styles/_variables.scss'
 import EinsatzmittelDialog from '@/renderer/components/EinsatzmittelTabelle/EinsatzmittelDialog'
 import DeleteEinsatzmittelDialog from '@/renderer/components/EinsatzmittelTabelle/DeleteEinsatzmittelDialog'
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'EinsatzmittelTabelle',
@@ -127,10 +130,25 @@ export default {
       )
       console.log(indexToDelete)
       this.einsatzmittel.splice(indexToDelete, 1)
+    },
+    searchFilter(value, search) {
+      return (
+        value !== '' &&
+        search !== '' &&
+        ((typeof value === 'string' && value.indexOf(search) !== -1) ||
+          (typeof value === 'object' &&
+            value.toString().indexOf(search.match(/.{1}/g).join(',')) !== -1))
+      )
     }
   },
   async mounted() {
-    this.einsatzmittel = this.$store.getters.getEinsatzmittel
+    this.loading = true
+    ipcRenderer.send('getEm', {})
+    ipcRenderer.on('postEm', (event, em) => {
+      this.$store.dispatch('updateEinsatzmittel', em)
+      this.loading = false
+      this.einsatzmittel = em
+    })
   },
   beforeDestroy() {
     this.$store.dispatch('updateEinsatzmittel', this.einsatzmittel)
@@ -164,6 +182,9 @@ export default {
 }
 .v-icon.v-icon:hover::after {
   opacity: 0.24;
+}
+.v-btn .v-icon.v-icon:hover::after {
+  opacity: 0;
 }
 
 ::v-deep .v-data-table__wrapper {
