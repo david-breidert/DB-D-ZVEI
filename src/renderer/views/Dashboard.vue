@@ -4,13 +4,18 @@
       cols="12"
       md="8"
       lg="9"
-      :style="$vuetify.breakpoint.smAndDown ? { height: '80%' } : ''"
+      :style="
+        $vuetify.breakpoint.smAndDown ? { height: '70%' } : { height: '100%' }
+      "
     >
       <AlarmListe />
     </v-col>
     <v-col
       class="d-flex"
       :class="{ 'flex-column': $vuetify.breakpoint.mdAndUp }"
+      :style="
+        $vuetify.breakpoint.smAndDown ? { height: '30%' } : { height: '100%' }
+      "
     >
       <Uhr
         style="flex-basis: 50%"

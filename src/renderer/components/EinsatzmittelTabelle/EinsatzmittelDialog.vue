@@ -111,9 +111,6 @@ export default {
         }
       }
     }
-  },
-  beforeDestroy() {
-    console.log('destroying dialog')
   }
 }
 </script>

@@ -72,8 +72,8 @@ export default {
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  letter-spacing: 5px;
-  font-size: 2rem;
+  letter-spacing: 0.5vw;
+  font-size: 2vw;
 
   ul {
     padding: 0;
