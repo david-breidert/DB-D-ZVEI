@@ -2,7 +2,11 @@
   <v-dialog v-model="show" width="500">
     <v-card>
       <v-card-title class="headline">
-        {{ changedEm._id }}
+        {{
+          changedEm.einsatzmittel
+            ? changedEm.einsatzmittel + ' bearbeiten'
+            : 'Neues Einsatzmittel'
+        }}
       </v-card-title>
       <v-divider></v-divider>
 
@@ -31,6 +35,9 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
+        <v-btn color="error" text @click="show = false">
+          Abbrechen
+        </v-btn>
         <v-btn color="primary" text @click="saveEm">
           Speichern
         </v-btn>

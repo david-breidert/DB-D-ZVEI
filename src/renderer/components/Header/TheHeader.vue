@@ -5,7 +5,7 @@
       <span>v{{ appVersion }}</span>
     </div>
     <v-spacer></v-spacer>
-    <span>DB - D - ZVEI</span>
+    <span>ZVEI - Decoder</span>
     <v-spacer></v-spacer>
     <v-btn text tile @click="minimizeWindow()">
       <v-icon x-small>mdi-minus</v-icon>

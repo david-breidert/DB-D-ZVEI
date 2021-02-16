@@ -35,7 +35,7 @@ export default {
         'Samstag'
       ]
       var year = now.getFullYear()
-      var month = now.getMonth()
+      var month = now.getMonth() + 1
       var day = now.getDate()
       var weekday = weekdays[now.getDay()]
 

@@ -126,8 +126,7 @@ ipcMain.on('app-version', event => {
   event.reply('app-version', { version: app.getVersion() })
 })
 ipcMain.on('install-update', async () => {
-  let path = await autoUpdater.downloadUpdate()
-  console.log(path)
+  await autoUpdater.downloadUpdate()
 })
 ipcMain.on('close-window', event => {
   console.log('trying to kill window')

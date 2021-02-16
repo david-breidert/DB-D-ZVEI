@@ -62,7 +62,6 @@ export default {
         this.context,
         this.analyser
       )
-      // this.$store.dispatch('updateCurrentFrequency', currentFrequency)
       if (currentFrequency !== -1) {
         this.$store.dispatch('updateLastTimeReceived', Date.now())
         const currentTon = getTonNummer(currentFrequency)
@@ -79,7 +78,7 @@ export default {
               )
               if (
                 tonfolge == null &&
-                Date.now() - this.zeitSeitLetztemTon <= 210
+                Date.now() - this.zeitSeitLetztemTon <= 150
               ) {
                 this.intervallCheck = setInterval(() => {
                   tonfolge = getValidatedTonfolge(

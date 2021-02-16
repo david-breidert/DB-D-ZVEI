@@ -8,6 +8,7 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       mainProcessFile: 'src/main/background.js',
+      productName: 'ZVEI-Decoder',
       builderOptions: {
         publish: ['github'],
         generateUpdatesFilesForAllChannels: true

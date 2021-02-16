@@ -8,7 +8,7 @@ async function createContext(stream) {
   const analyser = sfx.createAnalyser()
   analyser.minDecibels = -40
   analyser.maxDecibels = -10
-  analyser.smoothingTimeConstant = 0
+  analyser.smoothingTimeConstant = 0.25
   source.connect(analyser)
 
   return { sfx, analyser }

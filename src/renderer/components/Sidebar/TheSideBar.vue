@@ -48,7 +48,7 @@ export default {
         component: 'Dashboard',
         icon: 'mdi-monitor-dashboard'
       },
-      { title: 'Einstellungen', component: 'Settings', icon: 'mdi-cog' }
+      { title: 'Einsatzmittel', component: 'einsatzmittel', icon: 'mdi-cog' }
     ]
   })
 }
