@@ -1,4 +1,8 @@
 module.exports = {
+<<<<<<< Updated upstream
+  transpileDependencies: ["vuetify"]
+};
+=======
   transpileDependencies: ['vuetify'],
   pluginOptions: {
     electronBuilder: {
@@ -17,4 +21,5 @@ module.exports = {
       }
     }
   }
-};
+}
+>>>>>>> Stashed changes
