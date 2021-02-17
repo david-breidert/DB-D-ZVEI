@@ -1,38 +1,36 @@
-interface Einsatzmittel {
-  _id: string;
-  einsatzmittel: string;
-  tonfolge: Array<number>;
-}
+import { Module } from 'vuex';
+import { RootState } from '../types.index';
+import { Einsatzmittel, EinsatzmittelState } from './types.einsatzmittel';
 
-export default {
+const einsatzmittelModule: Module<EinsatzmittelState, RootState> = {
   state: () => ({
-    einsatzmittel: []
+    einsatzmittel: new Array<Einsatzmittel>()
   }),
   mutations: {
     SET_EINSATZMITTEL(state, einsatzmittel) {
       state.einsatzmittel = einsatzmittel;
     },
     ADD_EINSATZMITTEL(state, em) {
-      console.log("Inserting EM into array");
+      console.log('Inserting EM into array');
       console.log(em);
       state.einsatzmittel.push(em);
     }
   },
   actions: {
     updateEinsatzmittel(context, newValue) {
-      context.commit("SET_EINSATZMITTEL", newValue);
+      context.commit('SET_EINSATZMITTEL', newValue);
     },
     addEinsatzmittel(context, em) {
-      console.log("logging from action");
+      console.log('logging from action');
       console.log(em);
-      context.commit("ADD_EINSATZMITTEL", em);
+      context.commit('ADD_EINSATZMITTEL', em);
     }
   },
   getters: {
     getEinsatzmittel(state) {
       return state.einsatzmittel;
     },
-    getEinsatzmittelByTf: state => tf => {
+    getEinsatzmittelByTf: state => (tf: Array<number>) => {
       return tf
         ? state.einsatzmittel.find(em => {
             let equal = true;
@@ -47,3 +45,5 @@ export default {
     }
   }
 };
+
+export default einsatzmittelModule;
