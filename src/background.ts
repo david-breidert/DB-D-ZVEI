@@ -37,7 +37,7 @@ async function createWindow() {
     height: 900,
     minWidth: 430,
     minHeight: 500,
-    //frame: false,
+    frame: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -123,9 +123,6 @@ autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall(true, true);
 });
 
-ipcMain.on('app-version', event => {
-  event.reply('app-version', { version: app.getVersion() });
-});
 ipcMain.on('install-update', async () => {
   await autoUpdater.downloadUpdate();
 });

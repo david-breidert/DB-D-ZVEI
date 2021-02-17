@@ -1,7 +1,13 @@
 module.exports = {
+  pages: {
+    index: {
+      entry: 'src/main.ts'
+    }
+  },
   transpileDependencies: ['vuetify'],
   pluginOptions: {
     electronBuilder: {
+      mainProcessFile: 'src/background.ts',
       productName: 'ZVEI-Decoder',
       builderOptions: {
         publish: ['github'],
@@ -13,7 +19,7 @@ module.exports = {
   css: {
     loaderOptions: {
       scss: {
-        prependData: `@import "@/styles/_variables.scss";`
+        additionalData: `@import "@/styles/_variables.scss";`
       }
     }
   }

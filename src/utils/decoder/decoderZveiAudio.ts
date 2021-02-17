@@ -40,9 +40,9 @@ function getTonNummer(f: number) {
       if (index === 9) {
         currentTon = 0;
       } else if (index === 10) {
-        currentTon = "R";
+        currentTon = 'R';
       } else if (index === 11) {
-        currentTon = "S";
+        currentTon = 'S';
       } else {
         currentTon = index + 1;
       }
@@ -84,11 +84,11 @@ function getValidatedTonfolge(
     return null;
   }
   result.forEach((value, index) => {
-    if (value === "R") {
+    if (value === 'R') {
       result[index] = result[index - 1];
     }
   });
-  return result;
+  return result as number[];
 }
 
 export { getCurrentFrequencyFft, getTonNummer, getValidatedTonfolge };

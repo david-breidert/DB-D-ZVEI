@@ -3,33 +3,25 @@ import {
   getTonNummer,
   getValidatedTonfolge
 } from './decoderZveiAudio';
-import store from '../../store/index';
 
 export default class Decoder {
   microphoneId: string;
   kanal: string;
   audioStream: MediaStream | undefined;
-  audioContext: AudioContext;
-  audioAnalyser: AnalyserNode;
-  interval: number;
-  currentFrequency: number;
-  currentTon: number | string;
-  minTonCount: number;
-  maxTonCount: number;
+  audioContext = new AudioContext();
+  audioAnalyser = this.audioContext.createAnalyser();
+  interval = 0;
+  currentFrequency = -1;
+  currentTon: number | string = -1;
+  minTonCount = 3;
+  maxTonCount = 11;
 
   constructor(kanal: string, mediaDeviceId?: string) {
     this.microphoneId = mediaDeviceId || 'default';
     this.kanal = kanal;
-    this.audioContext = new AudioContext();
-    this.audioAnalyser = this.audioContext.createAnalyser();
     this.audioAnalyser.minDecibels = -40;
     this.audioAnalyser.maxDecibels = -10;
     this.audioAnalyser.smoothingTimeConstant = 0;
-    this.interval = 0;
-    this.currentFrequency = -1;
-    this.currentTon = -1;
-    this.minTonCount = 3;
-    this.maxTonCount = 11;
   }
 
   async start() {
@@ -49,7 +41,7 @@ export default class Decoder {
         this.audioAnalyser
       );
       if (currentFrequency !== -1) {
-        //store.dispatch('updateLastTimeReceived', Date.now())
+        if (this.onReceived) this.onReceived();
         const currentTon = getTonNummer(currentFrequency);
         if (currentTon !== -1) {
           tonFolgeGesamt.push(currentTon);
@@ -69,8 +61,10 @@ export default class Decoder {
                     this.maxTonCount
                   );
                   if (tonfolge != null) {
-                    console.log('Tonfolge durch IntervallCheck ermittelt:');
-                    //store.dispatch('addAlarm', tonfolge)
+                    console.log(
+                      'Tonfolge durch IntervallCheck ermittelt: ' + tonfolge
+                    );
+                    this.onTonfolge(tonfolge);
                     clearInterval(intervallCheck);
                     tonFolgeGesamt = [];
                   } else if (
@@ -82,9 +76,8 @@ export default class Decoder {
                   }
                 }, 140);
               } else if (tonfolge != null) {
-                console.log('Tonfolge ermittelt:');
-                //store.dispatch('addAlarm', tonfolge)
-
+                console.log('Tonfolge ermittelt: ' + tonfolge);
+                this.onTonfolge(tonfolge);
                 tonFolgeGesamt = [];
               } else {
                 tonFolgeGesamt = [];
@@ -100,6 +93,14 @@ export default class Decoder {
     }, 10);
 
     console.log('Decoder started on channel: ' + this.kanal);
+  }
+
+  onTonfolge(tonfolge: Array<number>) {
+    console.log('No Handler specified to handle Tonfolge: ' + tonfolge);
+  }
+
+  onReceived() {
+    console.log('onReceived not set');
   }
 
   stop() {
