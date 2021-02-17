@@ -1,20 +1,13 @@
-interface Alarm {
-  tonfolge: [
-    {
-      tf: Array<number>;
-      confidence: number;
-      zeitstempel: number;
-      em: Einsatzmittel;
-    }
-  ];
-}
+import { Module } from 'vuex';
+import { RootState } from '../types.index';
+import { Alarm, AlarmeState } from './types.alarme';
 
-export default {
+const alarmeModule: Module<AlarmeState, RootState> = {
   state: () => ({
-    alarme: []
+    alarme: new Array<Alarm>()
   }),
   mutations: {
-    ADD_NEW_ALARM(state, alm) {
+    ADD_NEW_ALARM(state, alm: Alarm) {
       state.alarme.push(alm);
     },
     ADD_TONFOLGE_ZU_LETZTEM_ALARM(state, tf) {
@@ -22,7 +15,7 @@ export default {
     }
   },
   actions: {
-    addAlarm(context, tf) {
+    addAlarm(context, tf: Array<number>) {
       const zeitstempel = Date.now();
       const currentAlm = context.getters.getLetztenAlarm;
       let arrayEqual = false;
@@ -50,14 +43,14 @@ export default {
           currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <=
           10000
       ) {
-        context.commit("ADD_TONFOLGE_ZU_LETZTEM_ALARM", {
+        context.commit('ADD_TONFOLGE_ZU_LETZTEM_ALARM', {
           tf: tf,
           confidence: 1,
           zeitstempel: zeitstempel,
           em: context.getters.getEinsatzmittelByTf(tf)
         });
       } else {
-        context.commit("ADD_NEW_ALARM", {
+        context.commit('ADD_NEW_ALARM', {
           // confidence: 1,
           tonfolge: [
             {
@@ -84,3 +77,5 @@ export default {
     }
   }
 };
+
+export default alarmeModule;

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 import {
   app,
@@ -6,20 +6,20 @@ import {
   BrowserWindow,
   ipcMain,
   powerSaveBlocker
-} from "electron";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
-import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
-import { autoUpdater } from "electron-updater";
-import path from "path";
-import Datastore from "nedb";
-const isDevelopment = process.env.NODE_ENV !== "production";
+} from 'electron';
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import { autoUpdater } from 'electron-updater';
+import path from 'path';
+import Datastore from 'nedb';
+const isDevelopment = process.env.NODE_ENV !== 'production';
 const db = new Datastore({
-  filename: path.join(app.getPath("userData"), "db.db"),
+  filename: path.join(app.getPath('userData'), 'db.db'),
   autoload: true
 });
 
-app.commandLine.appendSwitch("disable-renderer-backgrounding");
-powerSaveBlocker.start("prevent-app-suspension");
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+powerSaveBlocker.start('prevent-app-suspension');
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
@@ -27,7 +27,7 @@ let mainWindow: BrowserWindow;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: "app", privileges: { secure: true, standard: true } }
+  { scheme: 'app', privileges: { secure: true, standard: true } }
 ]);
 
 async function createWindow() {
@@ -53,23 +53,23 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    createProtocol("app");
+    createProtocol('app');
     // Load the index.html when not in development
-    await win.loadURL("app://./index.html");
+    await win.loadURL('app://./index.html');
   }
   return win;
 }
 
 // Quit when all windows are closed.
-app.on("window-all-closed", () => {
+app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -78,13 +78,13 @@ app.on("activate", () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", async () => {
+app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
       await installExtension(VUEJS_DEVTOOLS);
     } catch (e) {
-      console.error("Vue Devtools failed to install:", e.toString());
+      console.error('Vue Devtools failed to install:', e.toString());
     }
   }
   db.persistence.compactDatafile();
@@ -94,79 +94,79 @@ app.on("ready", async () => {
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
-  if (process.platform === "win32") {
-    process.on("message", data => {
-      if (data === "graceful-exit") {
+  if (process.platform === 'win32') {
+    process.on('message', data => {
+      if (data === 'graceful-exit') {
         app.quit();
       }
     });
   } else {
-    process.on("SIGTERM", () => {
+    process.on('SIGTERM', () => {
       app.quit();
     });
   }
 }
 
-autoUpdater.on("checking-for-update", () => {
-  mainWindow.webContents.send("checking-for-update");
+autoUpdater.on('checking-for-update', () => {
+  mainWindow.webContents.send('checking-for-update');
 });
-autoUpdater.on("update-available", () => {
-  mainWindow.webContents.send("update-available");
+autoUpdater.on('update-available', () => {
+  mainWindow.webContents.send('update-available');
 });
-autoUpdater.on("update-not-available", () => {
-  mainWindow.webContents.send("update-not-available");
+autoUpdater.on('update-not-available', () => {
+  mainWindow.webContents.send('update-not-available');
 });
-autoUpdater.on("download-progress", (progressData: object) => {
-  mainWindow.webContents.send("download-progress", progressData);
+autoUpdater.on('download-progress', (progressData: object) => {
+  mainWindow.webContents.send('download-progress', progressData);
 });
-autoUpdater.on("update-downloaded", () => {
+autoUpdater.on('update-downloaded', () => {
   autoUpdater.quitAndInstall(true, true);
 });
 
-ipcMain.on("app-version", event => {
-  event.reply("app-version", { version: app.getVersion() });
+ipcMain.on('app-version', event => {
+  event.reply('app-version', { version: app.getVersion() });
 });
-ipcMain.on("install-update", async () => {
+ipcMain.on('install-update', async () => {
   await autoUpdater.downloadUpdate();
 });
-ipcMain.on("close-window", event => {
+ipcMain.on('close-window', event => {
   const win = BrowserWindow.fromId(event.frameId);
   if (win) win.destroy();
 });
-ipcMain.on("maximize-window", event => {
+ipcMain.on('maximize-window', event => {
   const win = BrowserWindow.fromId(event.frameId);
   if (win) win.isMaximized() ? win.unmaximize() : win.maximize();
 });
-ipcMain.on("minimize-window", event => {
+ipcMain.on('minimize-window', event => {
   const win = BrowserWindow.fromId(event.frameId);
   if (win) win.minimize();
 });
 
-ipcMain.on("getEm", (evt, searchObj) => {
+ipcMain.on('getEm', (evt, searchObj) => {
   db.find(searchObj, (err: Error | null, docs: Array<object>) => {
     if (err) {
       throw err;
     }
     console.log(docs);
-    evt.reply("postEm", docs);
+    evt.reply('postEm', docs);
   });
 });
 
-ipcMain.on("addEm", (evt, em) => {
-  console.log("Inserting EM");
+ipcMain.on('addEm', (evt, em) => {
+  console.log('Inserting EM');
   db.insert(em, (err: Error | null, newEm: object) => {
     if (err) {
       throw err;
     }
-    console.log("Replying with: " + newEm);
-    evt.reply("emAdded", newEm);
+    console.log('Replying with: ' + newEm);
+    evt.reply('emAdded', newEm);
   });
 });
-ipcMain.on("editEm", (evt, em) => {
-  console.log("Updating EM");
+ipcMain.on('editEm', (evt, em) => {
+  console.log('Updating EM');
   db.update({ _id: em._id }, em);
 });
-ipcMain.on("deleteEm", (evt, em) => {
-  console.log("Deleting EM " + em._id);
+ipcMain.on('deleteEm', (evt, em) => {
+  console.log('Deleting EM ' + em._id);
   db.remove({ _id: em._id });
 });

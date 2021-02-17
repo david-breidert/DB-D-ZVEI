@@ -2,8 +2,8 @@ import {
   getCurrentFrequencyFft,
   getTonNummer,
   getValidatedTonfolge
-} from "./decoderZveiAudio";
-import store from "../../store/index";
+} from './decoderZveiAudio';
+import store from '../../store/index';
 
 export default class Decoder {
   microphoneId: string;
@@ -18,7 +18,7 @@ export default class Decoder {
   maxTonCount: number;
 
   constructor(kanal: string, mediaDeviceId?: string) {
-    this.microphoneId = mediaDeviceId || "default";
+    this.microphoneId = mediaDeviceId || 'default';
     this.kanal = kanal;
     this.audioContext = new AudioContext();
     this.audioAnalyser = this.audioContext.createAnalyser();
@@ -50,7 +50,6 @@ export default class Decoder {
       );
       if (currentFrequency !== -1) {
         //store.dispatch('updateLastTimeReceived', Date.now())
-        store.state.currentFrequency = currentFrequency;
         const currentTon = getTonNummer(currentFrequency);
         if (currentTon !== -1) {
           tonFolgeGesamt.push(currentTon);
@@ -70,7 +69,7 @@ export default class Decoder {
                     this.maxTonCount
                   );
                   if (tonfolge != null) {
-                    console.log("Tonfolge durch IntervallCheck ermittelt:");
+                    console.log('Tonfolge durch IntervallCheck ermittelt:');
                     //store.dispatch('addAlarm', tonfolge)
                     clearInterval(intervallCheck);
                     tonFolgeGesamt = [];
@@ -83,7 +82,7 @@ export default class Decoder {
                   }
                 }, 140);
               } else if (tonfolge != null) {
-                console.log("Tonfolge ermittelt:");
+                console.log('Tonfolge ermittelt:');
                 //store.dispatch('addAlarm', tonfolge)
 
                 tonFolgeGesamt = [];
@@ -100,11 +99,11 @@ export default class Decoder {
       updateData();
     }, 10);
 
-    console.log("Decoder started on channel: " + this.kanal);
+    console.log('Decoder started on channel: ' + this.kanal);
   }
 
   stop() {
     clearInterval(this.interval);
-    console.log("Decoder stopped on channel: " + this.kanal);
+    console.log('Decoder stopped on channel: ' + this.kanal);
   }
 }
