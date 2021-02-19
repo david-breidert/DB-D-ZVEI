@@ -1,8 +1,4 @@
-import {
-  getCurrentFrequencyFft,
-  getTonNummer,
-  getValidatedTonfolge
-} from './decoderZveiAudio';
+import { getCurrentFrequencyFft, getTonNummer, getValidatedTonfolge } from './decoderZveiAudio';
 
 export default class Decoder {
   microphoneId: string;
@@ -28,18 +24,13 @@ export default class Decoder {
     this.audioStream = await navigator.mediaDevices.getUserMedia({
       audio: { deviceId: this.microphoneId }
     });
-    this.audioContext
-      .createMediaStreamSource(this.audioStream)
-      .connect(this.audioAnalyser);
+    this.audioContext.createMediaStreamSource(this.audioStream).connect(this.audioAnalyser);
 
     let tonFolgeGesamt: Array<number | string> = [];
     let zeitLetzterTon = 0;
 
     const updateData = () => {
-      const currentFrequency = getCurrentFrequencyFft(
-        this.audioContext,
-        this.audioAnalyser
-      );
+      const currentFrequency = getCurrentFrequencyFft(this.audioContext, this.audioAnalyser);
       if (currentFrequency !== -1) {
         if (this.onReceived) this.onReceived();
         const currentTon = getTonNummer(currentFrequency);
@@ -48,29 +39,16 @@ export default class Decoder {
           zeitLetzterTon = Date.now();
           if (tonFolgeGesamt.length === 1) {
             setTimeout(() => {
-              let tonfolge = getValidatedTonfolge(
-                tonFolgeGesamt,
-                this.minTonCount,
-                this.maxTonCount
-              );
+              let tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
               if (tonfolge == null && Date.now() - zeitLetzterTon <= 150) {
                 const intervallCheck = setInterval(() => {
-                  tonfolge = getValidatedTonfolge(
-                    tonFolgeGesamt,
-                    this.minTonCount,
-                    this.maxTonCount
-                  );
+                  tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
                   if (tonfolge != null) {
-                    console.log(
-                      'Tonfolge durch IntervallCheck ermittelt: ' + tonfolge
-                    );
+                    console.log('Tonfolge durch IntervallCheck ermittelt: ' + tonfolge);
                     this.onTonfolge(tonfolge);
                     clearInterval(intervallCheck);
                     tonFolgeGesamt = [];
-                  } else if (
-                    tonfolge == null &&
-                    Date.now() - zeitLetzterTon > 210
-                  ) {
+                  } else if (tonfolge == null && Date.now() - zeitLetzterTon > 210) {
                     clearInterval(intervallCheck);
                     tonFolgeGesamt = [];
                   }

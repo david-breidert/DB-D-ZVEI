@@ -1,18 +1,13 @@
 'use strict';
 
-import {
-  app,
-  protocol,
-  BrowserWindow,
-  ipcMain,
-  powerSaveBlocker
-} from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, powerSaveBlocker } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import Datastore from 'nedb';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
 const db = new Datastore({
   filename: path.join(app.getPath('userData'), 'db.db'),
   autoload: true
@@ -26,9 +21,7 @@ autoUpdater.autoInstallOnAppQuit = false;
 let mainWindow: BrowserWindow;
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
-]);
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 async function createWindow() {
   // Create the browser window.
@@ -42,8 +35,7 @@ async function createWindow() {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       enableRemoteModule: true,
-      nodeIntegration: (process.env
-        .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
+      nodeIntegration: (process.env.ELECTRON_NODE_INTEGRATION as unknown) as boolean,
       backgroundThrottling: false
     }
   });
@@ -70,17 +62,11 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
     try {
       await installExtension(VUEJS_DEVTOOLS);
     } catch (e) {
@@ -92,7 +78,6 @@ app.on('ready', async () => {
   await autoUpdater.checkForUpdates();
 });
 
-// Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', data => {

@@ -1,40 +1,22 @@
 <template>
-  <v-sheet class="fill-height elevation-2" rounded>
-    <v-list dense class="fill-height flex-column-reverse rounded-b">
+  <v-sheet rounded class="fill-height elevation-2">
+    <v-list rounded class="flex-column-reverse">
       <template v-for="(alarm, index) in reverseAlarme">
-        <v-list-item :key="index">
-          <v-list-item-icon>
-            <v-chip small outlined label color="primary">
-              <v-icon left small>
-                mdi-bell-ring
-              </v-icon>
+        <v-list-item class="ma-0" :key="index">
+          <v-list-item-icon class="my-0 fill-height">
+            <v-alert icon="mdi-bell-ring" color="primary" dense text class="my-0 mx-2">
               {{ getAlarmTimeString(alarm) }}
-            </v-chip>
+            </v-alert>
           </v-list-item-icon>
 
           <v-list-item-content class="d-flex">
             <span>
               <template v-for="(tf, i) in alarm.tonfolge">
-                <span
-                  :key="tf.zeitstempel"
-                  :class="{
-                    'success--text': tf.confidence === 2,
-                    'warning--text': tf.confidence === 1
-                  }"
-                  >{{ tf.em ? tf.em.einsatzmittel : tf.tf }}
-                </span>
-                <v-icon
-                  v-if="!tf.em"
-                  :key="tf.zeitstempel + '-button'"
-                  x-small
-                  @click="addEmFromTonfolge(tf.tf)"
-                  >mdi-plus</v-icon
-                >
+                <v-chip label @click="addEmFromTonfolge(tf.em, tf.tf)" outlined class="mx-2" :class="{ success: tf.confidence === 2, warning: tf.confidence === 1, 'success--text': tf.confidence === 2, 'warning--text': tf.confidence === 1 }" :key="i">
+                  {{ tf.em ? tf.em.einsatzmittel : tf.tf }}
+                </v-chip>
 
-                <span
-                  v-if="!(i === alarm.tonfolge.length - 1)"
-                  :key="tf.zeitstempel + '-divider'"
-                >
+                <span v-if="!(i === alarm.tonfolge.length - 1)" :key="tf.zeitstempel + '-divider'">
                   -
                 </span>
               </template>
@@ -44,12 +26,7 @@
         <v-divider :key="index + '-divider'" />
       </template>
     </v-list>
-    <EinsatzmittelDialog
-      v-model="dialog"
-      :dialog="dialog"
-      :tf="tfToAdd"
-      @addEm="addEm"
-    ></EinsatzmittelDialog>
+    <EinsatzmittelDialog v-model="dialog" :dialog="dialog" :em="emToEdit" :tf="tfToAdd" @addEm="addEm"></EinsatzmittelDialog>
   </v-sheet>
 </template>
 
@@ -63,7 +40,8 @@ import { mapGetters } from 'vuex';
 export default Vue.extend({
   data: () => ({
     currentlyPlaying: null,
-    tfToAdd: new Array<number>(),
+    tfToAdd: [] as Array<number> | null,
+    emToEdit: null as Einsatzmittel | null,
     dialog: false
   }),
   components: {
@@ -75,6 +53,14 @@ export default Vue.extend({
       return this.getAlleAlarme.slice().reverse();
     }
   },
+  watch: {
+    dialog(newVal) {
+      if (newVal == false) {
+        this.emToEdit = null;
+        this.tfToAdd = null;
+      }
+    }
+  },
   methods: {
     getAlarmTimeString(alarm: Alarm) {
       const date = new Date(alarm.tonfolge[0].zeitstempel);
@@ -84,8 +70,15 @@ export default Vue.extend({
         second: '2-digit'
       });
     },
-    addEmFromTonfolge(tf: Array<number>) {
-      this.tfToAdd = tf;
+    addEmFromTonfolge(em?: Einsatzmittel, tf?: Array<number>) {
+      console.log('addEmFromTonfolge called with ' + em + '' + tf);
+      if (tf) this.tfToAdd = [...tf];
+      if (em) {
+        const obj: Einsatzmittel = { _id: '', einsatzmittel: '', tonfolge: new Array<number>() };
+        Object.assign(obj, em);
+        this.emToEdit = obj;
+      }
+      console.log(this.emToEdit);
       this.dialog = true;
     },
     addEm(em: Einsatzmittel) {
@@ -96,16 +89,28 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-// .v-list {
-//   background-color: transparent;
-//   padding: 0;
-//   overflow: auto;
-// }
-
-.v-list-item:first-child:hover::before {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+.v-list {
+  background: transparent !important;
+  padding: 0;
+  overflow: auto;
 }
+
+.v-list-item {
+  min-height: 60px;
+  background-color: transparent;
+  .v-list-item__icon {
+    align-self: initial;
+    margin: 0;
+  }
+  .v-chip {
+    height: 40px;
+  }
+}
+
+// .v-list-item:first-child:hover::before {
+//   border-bottom-left-radius: 8px;
+//   border-bottom-right-radius: 8px;
+// }
 
 ::-webkit-scrollbar {
   display: none;

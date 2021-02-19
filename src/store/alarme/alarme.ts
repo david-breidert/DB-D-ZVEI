@@ -12,6 +12,9 @@ const alarmeModule: Module<AlarmeState, RootState> = {
     },
     ADD_TONFOLGE_ZU_LETZTEM_ALARM(state, tf) {
       state.alarme[state.alarme.length - 1].tonfolge.push(tf);
+    },
+    REMOVE_OLDEST_ALARM(state) {
+      state.alarme.shift();
     }
   },
   actions: {
@@ -29,20 +32,9 @@ const alarmeModule: Module<AlarmeState, RootState> = {
         });
       }
 
-      if (
-        arrayEqual &&
-        zeitstempel -
-          currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <=
-          2000
-      ) {
+      if (arrayEqual && zeitstempel - currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <= 2000) {
         currentAlm.tonfolge[currentAlm.tonfolge.length - 1].confidence = 2;
-      } else if (
-        currentAlm &&
-        !arrayEqual &&
-        Date.now() -
-          currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <=
-          10000
-      ) {
+      } else if (currentAlm && !arrayEqual && Date.now() - currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <= 10000) {
         context.commit('ADD_TONFOLGE_ZU_LETZTEM_ALARM', {
           tf: tf,
           confidence: 1,
@@ -50,6 +42,9 @@ const alarmeModule: Module<AlarmeState, RootState> = {
           em: context.getters.getEinsatzmittelByTf(tf)
         });
       } else {
+        if (context.state.alarme.length >= 200) {
+          context.commit('REMOVE_OLDEST_ALARM');
+        }
         context.commit('ADD_NEW_ALARM', {
           // confidence: 1,
           tonfolge: [

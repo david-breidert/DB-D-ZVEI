@@ -17,20 +17,7 @@ function getCurrentFrequencyFft(sfx: AudioContext, analyser: AnalyserNode) {
 }
 
 function getTonNummer(f: number) {
-  const frequenzen = [
-    1060,
-    1160,
-    1270,
-    1400,
-    1530,
-    1670,
-    1830,
-    2000,
-    2200,
-    2400,
-    2600,
-    1240
-  ];
+  const frequenzen = [1060, 1160, 1270, 1400, 1530, 1670, 1830, 2000, 2200, 2400, 2600, 1240];
   const toleranz = 13;
   let currentTon: number | string = -1;
   frequenzen.forEach((value, index) => {
@@ -51,11 +38,7 @@ function getTonNummer(f: number) {
   return currentTon;
 }
 
-function getValidatedTonfolge(
-  tf: Array<string | number>,
-  minTonCount: number,
-  maxTonCount: number
-) {
+function getValidatedTonfolge(tf: Array<string | number>, minTonCount: number, maxTonCount: number) {
   let counter = 0;
   const result: Array<string | number> = [];
   const counters: Array<number> = [];

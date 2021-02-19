@@ -1,4 +1,5 @@
 import { Module } from 'vuex';
+import { Alarm } from '../alarme/types.alarme';
 import { RootState } from '../types.index';
 import { Einsatzmittel, EinsatzmittelState } from './types.einsatzmittel';
 

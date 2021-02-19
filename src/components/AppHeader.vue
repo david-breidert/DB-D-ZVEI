@@ -1,23 +1,25 @@
 <template>
-  <v-system-bar app>
+  <v-system-bar class="px-0" :color="$vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bgPrimary" app>
     <!-- color="#202225" -->
     <div class="resize-handle top"></div>
     <div class="resize-handle left"></div>
-    <div class="d-flex justify-space-between">
+    <div style="width: 56px" class="text-center">
       <span>{{ appVersion }}</span>
     </div>
     <v-spacer></v-spacer>
     <span>ZVEI - Decoder</span>
     <v-spacer></v-spacer>
-    <v-btn text tile @click="minimizeWindow()">
-      <v-icon x-small>mdi-minus</v-icon>
-    </v-btn>
-    <v-btn text tile @click="maximizeWindow()">
-      <v-icon x-small>mdi-checkbox-blank-outline</v-icon>
-    </v-btn>
-    <v-btn text tile @click="closeWindow()">
-      <v-icon x-small>mdi-close</v-icon>
-    </v-btn>
+    <div class="fill-height">
+      <v-btn text tile @click="minimizeWindow()">
+        <v-icon x-small>mdi-minus</v-icon>
+      </v-btn>
+      <v-btn text tile @click="maximizeWindow()">
+        <v-icon x-small>mdi-checkbox-blank-outline</v-icon>
+      </v-btn>
+      <v-btn text tile @click="closeWindow()">
+        <v-icon x-small>mdi-close</v-icon>
+      </v-btn>
+    </div>
   </v-system-bar>
 </template>
 
@@ -26,7 +28,7 @@ import { ipcRenderer, remote } from 'electron';
 import Vue from 'vue';
 
 export default Vue.extend({
-  name: 'TheHeader',
+  name: 'AppHeader',
   data: () => ({
     appVersion: ''
   }),

@@ -3,18 +3,9 @@
     <v-sheet class="text-center" height="100px">
       <div style="height: 40px">
         <v-expand-x-transition>
-          <v-progress-linear
-            v-if="downloading"
-            height="30px"
-            color="primary"
-            :value="downloadProgress"
-          ></v-progress-linear>
+          <v-progress-linear v-if="downloading" height="30px" color="primary" :value="downloadProgress"></v-progress-linear>
         </v-expand-x-transition>
-        <div
-          v-if="!downloading"
-          style="height: 40px; line-height: 40px"
-          class=" align-center "
-        >
+        <div v-if="!downloading" style="height: 40px; line-height: 40px" class=" align-center ">
           Eine neue Version ist verfügbar!
         </div>
       </div>
@@ -24,12 +15,7 @@
             <v-btn text large color="primary" @click="installUpdate()">
               Update installieren
             </v-btn>
-            <v-btn
-              text
-              large
-              color="error"
-              @click="updateAvailable = !updateAvailable"
-            >
+            <v-btn text large color="error" @click="updateAvailable = !updateAvailable">
               schließen
             </v-btn>
           </div>
@@ -42,10 +28,11 @@
   </v-bottom-sheet>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue';
 import { ipcRenderer } from 'electron';
-export default {
-  name: 'Update',
+export default Vue.extend({
+  name: 'AppUpdateDialog',
   data: () => ({
     updateAvailable: false,
     downloading: false,
@@ -58,30 +45,19 @@ export default {
     }
   },
   mounted() {
-    ipcRenderer.send('app-version');
-
-    ipcRenderer.on('app-version', (event, arg) => {
-      ipcRenderer.removeAllListeners('app_version');
-      this.version = arg.version;
-    });
-
-    ipcRenderer.on('checking-for-update', () =>
-      console.log('Checking for application update')
-    );
+    ipcRenderer.on('checking-for-update', () => console.log('Checking for application update'));
     ipcRenderer.on('update-available', () => {
       console.log('An update is available');
       this.updateAvailable = true;
     });
-    ipcRenderer.on('checking-for-update', () =>
-      console.log('The application is up to date')
-    );
+    ipcRenderer.on('checking-for-update', () => console.log('The application is up to date'));
     ipcRenderer.on('download-progress', (event, progressData) => {
       console.log(progressData);
       this.downloadProgress = progressData.percent;
       console.log('Lade herunter: ' + progressData.percent);
     });
   }
-};
+});
 </script>
 
 <style lang="scss" scoped></style>

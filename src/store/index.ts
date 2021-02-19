@@ -19,6 +19,9 @@ const store: StoreOptions<RootState> = {
   actions: {
     updateLastTimeReceived(context, time) {
       context.commit('SET_LAST_TIME_RECEIVED', time);
+    },
+    changeTheme(context) {
+      context.commit('SWITCH_THEME');
     }
   },
   getters: {

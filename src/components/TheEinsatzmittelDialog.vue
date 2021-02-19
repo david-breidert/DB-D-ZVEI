@@ -2,11 +2,7 @@
   <v-dialog v-model="show" width="500">
     <v-card>
       <v-card-title class="headline">
-        {{
-          changedEm.einsatzmittel
-            ? changedEm.einsatzmittel + ' bearbeiten'
-            : 'Neues Einsatzmittel'
-        }}
+        {{ changedEm.einsatzmittel ? changedEm.einsatzmittel + ' bearbeiten' : 'Neues Einsatzmittel' }}
       </v-card-title>
       <v-divider></v-divider>
 
@@ -14,18 +10,12 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-              <v-text-field
-                label="Name"
-                v-model="changedEm.einsatzmittel"
-              ></v-text-field>
+              <v-text-field label="Name" v-model="changedEm.einsatzmittel"></v-text-field>
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="12">
-              <v-text-field
-                label="Tonfolge"
-                v-model="changedEm.tonfolge"
-              ></v-text-field>
+              <v-text-field label="Tonfolge" v-model="changedEm.tonfolge"></v-text-field>
             </v-col>
           </v-row>
         </v-container>
@@ -47,9 +37,8 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import Vue from 'vue';
 import { ipcRenderer } from 'electron';
-import { Einsatzmittel } from '@/store/einsatzmittel/types.einsatzmittel';
 
 export default Vue.extend({
   name: 'EinsatzmittelDialog',
@@ -62,7 +51,7 @@ export default Vue.extend({
   }),
   props: {
     dialog: { type: Boolean, required: true },
-    em: { type: Object as PropType<Einsatzmittel>, required: false },
+    em: { required: false },
     tf: { type: Array, required: false }
   },
   computed: {
@@ -78,9 +67,7 @@ export default Vue.extend({
   methods: {
     saveEm() {
       if (typeof this.changedEm.tonfolge == 'string') {
-        this.changedEm.tonfolge = this.changedEm.tonfolge
-          .split('')
-          .map((str: string) => parseInt(str));
+        this.changedEm.tonfolge = this.changedEm.tonfolge.split('').map((str: string) => parseInt(str));
       }
       if (this.em) {
         Object.assign(this.em, this.changedEm);
@@ -90,11 +77,9 @@ export default Vue.extend({
           einsatzmittel: this.changedEm.einsatzmittel,
           tonfolge: this.changedEm.tonfolge
         });
-        ipcRenderer.once('emAdded', (evt, em) => {
-          this.$emit('addEm', em);
-        });
       }
       this.show = false;
+      ipcRenderer.send('getEm');
     }
   },
   watch: {
@@ -102,18 +87,14 @@ export default Vue.extend({
       if (newVal === true) {
         if (this.em) {
           Object.assign(this.changedEm, this.em);
-          this.changedEm.tonfolge = this.changedEm.tonfolge
-            .toString()
-            .replace(/,/g, '');
+          this.changedEm.tonfolge = this.changedEm.tonfolge.toString().replace(/,/g, '');
         } else if (this.tf && !this.em) {
           Object.assign(this.changedEm, {
             _id: null,
             einsatzmittel: null,
             tonfolge: this.tf
           });
-          this.changedEm.tonfolge = this.changedEm.tonfolge
-            .toString()
-            .replace(/,/g, '');
+          this.changedEm.tonfolge = this.changedEm.tonfolge.toString().replace(/,/g, '');
         }
       } else {
         this.changedEm = {
@@ -126,5 +107,3 @@ export default Vue.extend({
   }
 });
 </script>
-
-<style scoped></style>
