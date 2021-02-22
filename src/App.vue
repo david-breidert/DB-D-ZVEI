@@ -17,7 +17,6 @@ import Decoder from './utils/decoder/decoder';
 import AppUpdateDialog from './components/AppUpdateDialog.vue';
 import AppHeader from './components/AppHeader.vue';
 import AppSideBar from './components/AppSideBar.vue';
-import { ipcRenderer } from 'electron';
 
 export default Vue.extend({
   name: 'App',
@@ -31,27 +30,19 @@ export default Vue.extend({
     isUpdateAvailable: false
   }),
   mounted() {
-    ipcRenderer.send('getEm', {});
-    ipcRenderer.on('postEm', (event, em) => {
-      this.$store.dispatch('updateEinsatzmittel', em);
-    });
-
-    // Decoder erzeugen, bis Funktion zum Erzeugen für den Nutzer implementiert ist
     const ch357 = new Decoder('357');
     ch357.onReceived = () => {
       this.$store.dispatch('updateLastTimeReceived', Date.now());
     };
-    ch357.onTonfolge = tonfolge => {
-      this.$store.dispatch('addAlarm', tonfolge);
+    ch357.onTonfolge = (kanal, tonfolge) => {
+      this.$store.dispatch('addAlarm', { kanal, tonfolge });
     };
     this.decoders.push(ch357);
-    this.decoders.forEach(decoder => decoder.start());
-  },
-  watch: {
-    '$store.state.theme'(newVal) {
-      console.log('watcher');
-      newVal == 'dark' ? (this.$vuetify.theme.dark = true) : (this.$vuetify.theme.dark = false);
-    }
+    this.decoders.forEach(decoder => {
+      decoder.start();
+      this.$store.dispatch('addDecoder', decoder);
+    });
+    this.$store.dispatch('updateEinsatzmittelCollection');
   }
 });
 </script>

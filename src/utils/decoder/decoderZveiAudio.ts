@@ -1,3 +1,5 @@
+import { Ton, Tonfolge, ValidatedTonfolge } from '@/types';
+
 function getCurrentFrequencyFft(sfx: AudioContext, analyser: AnalyserNode) {
   const nyquist = sfx.sampleRate / 2;
   const frequencyPerBin = nyquist / analyser.frequencyBinCount;
@@ -19,26 +21,57 @@ function getCurrentFrequencyFft(sfx: AudioContext, analyser: AnalyserNode) {
 function getTonNummer(f: number) {
   const frequenzen = [1060, 1160, 1270, 1400, 1530, 1670, 1830, 2000, 2200, 2400, 2600, 1240];
   const toleranz = 13;
-  let currentTon: number | string = -1;
+  let currentTon: Ton = -1;
   frequenzen.forEach((value, index) => {
     const min = value - toleranz;
     const max = value + toleranz;
     if (f >= min && f <= max) {
-      if (index === 9) {
-        currentTon = 0;
-      } else if (index === 10) {
-        currentTon = 'R';
-      } else if (index === 11) {
-        currentTon = 'S';
-      } else {
-        currentTon = index + 1;
+      switch (index) {
+        case 0:
+          currentTon = 1;
+          break;
+        case 1:
+          currentTon = 2;
+          break;
+        case 2:
+          currentTon = 3;
+          break;
+        case 3:
+          currentTon = 4;
+          break;
+        case 4:
+          currentTon = 5;
+          break;
+        case 5:
+          currentTon = 6;
+          break;
+        case 6:
+          currentTon = 7;
+          break;
+        case 7:
+          currentTon = 8;
+          break;
+        case 8:
+          currentTon = 9;
+          break;
+        case 9:
+          currentTon = 0;
+          break;
+        case 10:
+          currentTon = 'R';
+          break;
+        case 11:
+          currentTon = 'S';
+          break;
+        default:
+          break;
       }
     }
   });
   return currentTon;
 }
 
-function getValidatedTonfolge(tf: Array<string | number>, minTonCount: number, maxTonCount: number) {
+function getValidatedTonfolge(tf: Tonfolge, minTonCount: number, maxTonCount: number) {
   let counter = 0;
   const result: Array<string | number> = [];
   const counters: Array<number> = [];
@@ -71,7 +104,7 @@ function getValidatedTonfolge(tf: Array<string | number>, minTonCount: number, m
       result[index] = result[index - 1];
     }
   });
-  return result as number[];
+  return result as ValidatedTonfolge;
 }
 
 export { getCurrentFrequencyFft, getTonNummer, getValidatedTonfolge };

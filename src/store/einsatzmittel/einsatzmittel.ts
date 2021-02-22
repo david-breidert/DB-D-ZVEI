@@ -1,48 +1,45 @@
+import { Einsatzmittel } from '@/types';
+import Decoder from '@/utils/decoder/decoder';
 import { Module } from 'vuex';
-import { Alarm } from '../alarme/types.alarme';
-import { RootState } from '../types.index';
-import { Einsatzmittel, EinsatzmittelState } from './types.einsatzmittel';
+import { RootState } from '../index';
+
+type EinsatzmittelState = {
+  einsatzmittelCollection: Array<{ kanal: string; einsatzmittel: Array<Einsatzmittel> }>;
+};
 
 const einsatzmittelModule: Module<EinsatzmittelState, RootState> = {
-  state: () => ({
-    einsatzmittel: new Array<Einsatzmittel>()
-  }),
+  state: {
+    einsatzmittelCollection: new Array<{ kanal: string; einsatzmittel: Array<Einsatzmittel> }>()
+  },
   mutations: {
-    SET_EINSATZMITTEL(state, einsatzmittel) {
-      state.einsatzmittel = einsatzmittel;
+    ADD_EINSATZMITTEL_TO_COLLECTION(state, obj) {
+      state.einsatzmittelCollection.push(obj);
     },
-    ADD_EINSATZMITTEL(state, em) {
-      console.log('Inserting EM into array');
-      console.log(em);
-      state.einsatzmittel.push(em);
+    UPDATE_EINSATZMITTEL(state, { obj, einsatzmittel }) {
+      obj.einsatzmittel = einsatzmittel;
+    },
+    REMOVE_EINSATZMITTEL_FROM_COLLECTION(state, kanal) {
+      const i = state.einsatzmittelCollection.findIndex(o => o.kanal == kanal);
+      state.einsatzmittelCollection.splice(i, 1);
     }
   },
   actions: {
-    updateEinsatzmittel(context, newValue) {
-      context.commit('SET_EINSATZMITTEL', newValue);
-    },
-    addEinsatzmittel(context, em) {
-      console.log('logging from action');
-      console.log(em);
-      context.commit('ADD_EINSATZMITTEL', em);
+    updateEinsatzmittelCollection(context) {
+      context.rootGetters.getAllDecoders.forEach(async (decoder: Decoder) => {
+        const einsatzmittel = await decoder.db.getAlleEm();
+
+        const obj = context.state.einsatzmittelCollection.find(o => o.kanal == decoder.kanal);
+        if (obj) {
+          context.commit('UPDATE_EINSATZMITTEL', { obj: obj, einsatzmittel: einsatzmittel });
+        } else {
+          context.commit('ADD_EINSATZMITTEL_TO_COLLECTION', { kanal: decoder.kanal, einsatzmittel: einsatzmittel });
+        }
+      });
     }
   },
   getters: {
-    getEinsatzmittel(state) {
-      return state.einsatzmittel;
-    },
-    getEinsatzmittelByTf: state => (tf: Array<number>) => {
-      return tf
-        ? state.einsatzmittel.find(em => {
-            let equal = true;
-            em.tonfolge.forEach((value, index) => {
-              if (value !== tf[index]) {
-                equal = false;
-              }
-            });
-            return equal;
-          })
-        : null;
+    getAlleEm(state) {
+      return state.einsatzmittelCollection;
     }
   }
 };
