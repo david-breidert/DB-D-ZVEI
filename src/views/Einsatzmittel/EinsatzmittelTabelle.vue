@@ -2,7 +2,7 @@
   <v-sheet class="fill-height elevation-3" rounded>
     <v-data-table
       :headers="headers"
-      :items="einsatzmittel"
+      :items="getDataTableEm"
       :loading="loading"
       loading-text="Lade Einsatzmittel"
       item-key="_id"
@@ -19,7 +19,10 @@
     >
       <template v-slot:top>
         <v-row no-gutters class="flex-nowrap">
-          <v-col md="11" sm="10">
+          <v-col class="d-flex justify-center align-center">
+            <v-select hide-details dense v-model="selectedKanal" :items="getAlleEm" item-text="kanal" solo flat></v-select>
+          </v-col>
+          <v-col md="9" sm="8">
             <v-text-field v-model="search" id="search" :append-icon="search ? '' : 'mdi-magnify'" hide-details dense solo flat clearable class="ma-3"> </v-text-field>
           </v-col>
           <v-col class="d-flex justify-center align-center">
@@ -31,7 +34,7 @@
       </template>
       <template v-slot:item="{ item }">
         <tr @dblclick="editEmDialog(item)" :key="item._id">
-          <td>{{ item.einsatzmittel }}</td>
+          <td>{{ item.name }}</td>
           <td>{{ item.tonfolge.toString().replace(/,/g, '') }}</td>
           <td>
             <v-icon small class="mr-2" @click.stop="editEmDialog(item)">
@@ -54,21 +57,24 @@
   </v-sheet>
 </template>
 
-<script>
+<script lang="ts">
 import EinsatzmittelDialog from '@/components/TheEinsatzmittelDialog';
 import DeleteEinsatzmittelDialog from '@/components/TheDeleteEinsatzmittelDialog';
-import { ipcRenderer } from 'electron';
+import { mapGetters } from 'vuex';
+import Decoder from '@/utils/decoder/decoder';
+import { Einsatzmittel } from '@/types';
 
 export default {
   name: 'EinsatzmittelTabelle',
   components: { DeleteEinsatzmittelDialog, EinsatzmittelDialog },
   data: () => ({
     headers: [
-      { text: 'Einsatzmittel', value: 'einsatzmittel' },
+      { text: 'Einsatzmittel', value: 'name' },
       { text: 'Fünftonfolge', value: 'tonfolge' },
       { text: '', value: 'actions', sortable: false }
     ],
     search: '',
+    selectedKanal: '357',
     loading: false,
     sortBy: 'tonfolge',
     sortDesc: false,
@@ -79,8 +85,16 @@ export default {
     deleteDialog: false
   }),
   computed: {
-    stateEMs() {
-      return this.$store.getters.getEinsatzmittel;
+    ...mapGetters(['getAlleEm']),
+    getDataTableEm() {
+      if (this.getAlleEm) {
+        const alleEm = this.getAlleEm[this.getAlleEm.findIndex(o => o.kanal == this.selectedKanal)];
+        if (alleEm) {
+          return alleEm.einsatzmittel;
+        } else return [];
+      } else {
+        return [];
+      }
     }
   },
   methods: {
@@ -89,35 +103,41 @@ export default {
       this.dialog = true;
     },
     editEmDialog(item) {
-      this.selectedEm = item;
-      this.dialog = true;
+      // this.selectedEm = item;
+      // this.dialog = true;
     },
     deleteEmDialog(item) {
-      this.selectedEm = item;
-      this.deleteDialog = true;
+      // this.selectedEm = item;
+      // this.deleteDialog = true;
     },
-    addEm(newEm) {
-      this.einsatzmittel.push(newEm);
+    addEm(newEm: Einsatzmittel) {
+      const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.selectedKanal);
+      decoder.db.addEm(newEm);
     },
-    deleteEM(deletedEm) {
-      const indexToDelete = this.einsatzmittel.findIndex(em => em._id === deletedEm._id);
-      console.log(indexToDelete);
-      this.einsatzmittel.splice(indexToDelete, 1);
+    editEm(emToEdit: Einsatzmittel) {
+      const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.selectedKanal);
+      decoder.db.editEm(emToEdit);
     },
-    searchFilter(value, search) {
-      return value !== '' && search !== '' && ((typeof value === 'string' && value.indexOf(search) !== -1) || (typeof value === 'object' && value.toString().indexOf(search.match(/.{1}/g).join(',')) !== -1));
+    deleteEM(emToDelete: Einsatzmittel) {
+      const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.selectedKanal);
+      decoder.db.deleteEm(emToDelete);
+    },
+    searchFilter(value: string | object, search: string) {
+      if (value && search) {
+        if (typeof value === 'string') {
+          return value.indexOf(search) !== -1;
+        } else {
+          const searchMatch = search.match(/.{1}/g);
+          if (searchMatch) {
+            return value.toString().indexOf(searchMatch.join(',')) !== -1;
+          }
+        }
+      }
+      // return value !== '' && search !== '' && ((typeof value === 'string' && value.indexOf(search) !== -1) || (typeof value === 'object' && value.toString().indexOf(search.match(/.{1}/g).join(',')) !== -1));
     }
   },
-  async mounted() {
-    this.loading = true;
-    ipcRenderer.send('getEm', {});
-    ipcRenderer.on('postEm', (event, em) => {
-      this.loading = false;
-      this.einsatzmittel = em;
-    });
-  },
-  beforeDestroy() {
-    this.$store.dispatch('updateEinsatzmittel', this.einsatzmittel);
+  created() {
+    this.$store.dispatch('updateEinsatzmittelCollection');
   }
 };
 </script>

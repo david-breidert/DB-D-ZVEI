@@ -1,6 +1,10 @@
+import { Alarm, Ruf, ValidatedTonfolge } from '@/types';
 import { Module } from 'vuex';
-import { RootState } from '../types.index';
-import { Alarm, AlarmeState } from './types.alarme';
+import { RootState } from '../index';
+
+export type AlarmeState = {
+  alarme: Array<Alarm>;
+};
 
 const alarmeModule: Module<AlarmeState, RootState> = {
   state: () => ({
@@ -10,21 +14,24 @@ const alarmeModule: Module<AlarmeState, RootState> = {
     ADD_NEW_ALARM(state, alm: Alarm) {
       state.alarme.push(alm);
     },
-    ADD_TONFOLGE_ZU_LETZTEM_ALARM(state, tf) {
-      state.alarme[state.alarme.length - 1].tonfolge.push(tf);
+    ADD_RUF_TO_LAST_ALARM(state, ruf: Ruf) {
+      state.alarme[state.alarme.length - 1].push(ruf);
+    },
+    INCREASE_CONFIDENCE_OF_LAST_RUF(state, ruf: Ruf) {
+      ruf.confidence++;
     },
     REMOVE_OLDEST_ALARM(state) {
       state.alarme.shift();
     }
   },
   actions: {
-    addAlarm(context, tf: Array<number>) {
+    addAlarm(context, { kanal, tonfolge }: { kanal: string; tonfolge: ValidatedTonfolge }) {
       const zeitstempel = Date.now();
-      const currentAlm = context.getters.getLetztenAlarm;
+      const currentAlm: Alarm = context.getters.getLetztenAlarm;
       let arrayEqual = false;
-      if (currentAlm) {
-        tf.forEach((n, i) => {
-          if (n !== currentAlm.tonfolge[currentAlm.tonfolge.length - 1].tf[i]) {
+      if (currentAlm && currentAlm[currentAlm.length - 1].kanal == kanal) {
+        tonfolge.forEach((n, i) => {
+          if (n !== currentAlm[currentAlm.length - 1].tonfolge[i]) {
             arrayEqual = false;
           } else {
             arrayEqual = true;
@@ -32,30 +39,27 @@ const alarmeModule: Module<AlarmeState, RootState> = {
         });
       }
 
-      if (arrayEqual && zeitstempel - currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <= 2000) {
-        currentAlm.tonfolge[currentAlm.tonfolge.length - 1].confidence = 2;
-      } else if (currentAlm && !arrayEqual && Date.now() - currentAlm.tonfolge[currentAlm.tonfolge.length - 1].zeitstempel <= 10000) {
-        context.commit('ADD_TONFOLGE_ZU_LETZTEM_ALARM', {
-          tf: tf,
+      if (arrayEqual && zeitstempel - currentAlm[currentAlm.length - 1].zeitstempel <= 2000) {
+        context.commit('INCREASE_CONFIDENCE_OF_LAST_RUF', currentAlm[currentAlm.length - 1]);
+      } else if (currentAlm && !arrayEqual && Date.now() - currentAlm[currentAlm.length - 1].zeitstempel <= 10000) {
+        context.commit('ADD_RUF_TO_LAST_ALARM', {
+          kanal: kanal,
+          tonfolge: tonfolge,
           confidence: 1,
-          zeitstempel: zeitstempel,
-          em: context.getters.getEinsatzmittelByTf(tf)
-        });
+          zeitstempel: zeitstempel
+        } as Ruf);
       } else {
         if (context.state.alarme.length >= 200) {
           context.commit('REMOVE_OLDEST_ALARM');
         }
-        context.commit('ADD_NEW_ALARM', {
-          // confidence: 1,
-          tonfolge: [
-            {
-              tf: tf,
-              confidence: 1,
-              em: context.getters.getEinsatzmittelByTf(tf),
-              zeitstempel: zeitstempel
-            }
-          ]
-        });
+        context.commit('ADD_NEW_ALARM', [
+          {
+            kanal: kanal,
+            tonfolge: tonfolge,
+            confidence: 1,
+            zeitstempel: zeitstempel
+          } as Ruf
+        ]);
       }
     }
   },
