@@ -14,6 +14,7 @@ export default class Decoder {
   currentTon: number | string = -1;
   minTonCount = 3;
   maxTonCount = 11;
+  running = false;
 
   constructor(kanal: string, mediaDeviceId?: string) {
     this.microphoneId = mediaDeviceId || 'default';
@@ -25,6 +26,7 @@ export default class Decoder {
   }
 
   async start() {
+    this.running = true;
     this.audioStream = await navigator.mediaDevices.getUserMedia({
       audio: { deviceId: this.microphoneId }
     });
@@ -88,5 +90,6 @@ export default class Decoder {
   stop() {
     clearInterval(this.interval);
     console.log('Decoder stopped on channel: ' + this.kanal);
+    this.running = false;
   }
 }

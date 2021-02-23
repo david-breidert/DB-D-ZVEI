@@ -50,7 +50,8 @@ export default Vue.extend({
         route: { path: '/', component: Dashboard },
         icon: 'mdi-monitor-dashboard'
       },
-      { title: 'Einsatzmittel', route: { path: '/Einsatzmittel', component: EinsatzmittelDatenbank }, icon: 'mdi-cog' }
+      { title: 'Einsatzmittel', route: { path: '/einsatzmittel', component: EinsatzmittelDatenbank }, icon: 'mdi-database' },
+      { title: 'Settings', route: { path: '/settings', component: EinsatzmittelDatenbank }, icon: 'mdi-cog' }
     ]
   }),
   methods: {

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter, { RouteConfig } from 'vue-router';
-import Dashboard from '../views/Dashboard/Dashboard.vue';
+import Dashboard from '@/views/Dashboard/Dashboard.vue';
 
 Vue.use(VueRouter);
 
@@ -16,7 +16,15 @@ const routes: Array<RouteConfig> = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "EinsatzmittelDatenbank" */ '@/views/Einsatzmittel/Einsatzmittel.vue')
+    component: () => import(/* webpackChunkName: "Einsatzmittel" */ '@/views/Einsatzmittel/Einsatzmittel.vue')
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "Settings" */ '@/views/Settings/Settings.vue')
   }
 ];
 

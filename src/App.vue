@@ -38,6 +38,14 @@ export default Vue.extend({
       this.$store.dispatch('addAlarm', { kanal, tonfolge });
     };
     this.decoders.push(ch357);
+    const ch455 = new Decoder('455');
+    ch455.onReceived = () => {
+      this.$store.dispatch('updateLastTimeReceived', Date.now());
+    };
+    ch455.onTonfolge = (kanal, tonfolge) => {
+      this.$store.dispatch('addAlarm', { kanal, tonfolge });
+    };
+    this.decoders.push(ch455);
     this.decoders.forEach(decoder => {
       decoder.start();
       this.$store.dispatch('addDecoder', decoder);
