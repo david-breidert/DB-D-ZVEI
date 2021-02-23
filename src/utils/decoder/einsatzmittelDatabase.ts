@@ -48,7 +48,7 @@ export default class EinsatzmittelDatabase {
    * @param em Einsatzmittel to be added to the Database
    */
 
-  addEm(em: { name: string; tonfolge: ValidatedTonfolge }) {
+  addEm(em: { name: string; kanal: string; tonfolge: ValidatedTonfolge }) {
     this.db.insert(em, (err, savedEm) => {
       if (err) throw err;
       console.log('Successfully added EM: ');

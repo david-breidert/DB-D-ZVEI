@@ -52,21 +52,21 @@
       <v-text-field></v-text-field>
       <v-text-field></v-text-field>
     </v-form>
-    <EinsatzmittelDialog v-model="dialog" :dialog="dialog" :em="selectedEm" @addEm="addEm"></EinsatzmittelDialog>
-    <DeleteEinsatzmittelDialog v-model="deleteDialog" :dialog="deleteDialog" :em="selectedEm" @deleteEm="deleteEM"></DeleteEinsatzmittelDialog>
+    <TheEinsatzmittelDialog v-model="dialog" :dialog="dialog" :kanal="selectedKanal" :em="selectedEm" @addEm="addEm"></TheEinsatzmittelDialog>
+    <TheDeleteEinsatzmittelDialog v-model="deleteDialog" :dialog="deleteDialog" :kanal="selectedKanal" :em="selectedEm" @deleteEm="deleteEM"></TheDeleteEinsatzmittelDialog>
   </v-sheet>
 </template>
 
 <script lang="ts">
-import EinsatzmittelDialog from '@/components/TheEinsatzmittelDialog';
-import DeleteEinsatzmittelDialog from '@/components/TheDeleteEinsatzmittelDialog';
+import TheEinsatzmittelDialog from '@/components/TheEinsatzmittelDialog.vue';
+import TheDeleteEinsatzmittelDialog from '@/components/TheDeleteEinsatzmittelDialog.vue';
 import { mapGetters } from 'vuex';
 import Decoder from '@/utils/decoder/decoder';
 import { Einsatzmittel } from '@/types';
 
 export default {
   name: 'EinsatzmittelTabelle',
-  components: { DeleteEinsatzmittelDialog, EinsatzmittelDialog },
+  components: { TheDeleteEinsatzmittelDialog, TheEinsatzmittelDialog },
   data: () => ({
     headers: [
       { text: 'Einsatzmittel', value: 'name' },
@@ -80,7 +80,7 @@ export default {
     sortDesc: false,
     selected: null,
     einsatzmittel: [],
-    selectedEm: null,
+    selectedEm: null as Einsatzmittel | null,
     dialog: false,
     deleteDialog: false
   }),
@@ -102,13 +102,13 @@ export default {
       this.selectedEm = null;
       this.dialog = true;
     },
-    editEmDialog(item) {
-      // this.selectedEm = item;
-      // this.dialog = true;
+    editEmDialog(item: Einsatzmittel) {
+      this.selectedEm = item;
+      this.dialog = true;
     },
-    deleteEmDialog(item) {
-      // this.selectedEm = item;
-      // this.deleteDialog = true;
+    deleteEmDialog(item: Einsatzmittel) {
+      this.selectedEm = item;
+      this.deleteDialog = true;
     },
     addEm(newEm: Einsatzmittel) {
       const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.selectedKanal);
@@ -133,7 +133,6 @@ export default {
           }
         }
       }
-      // return value !== '' && search !== '' && ((typeof value === 'string' && value.indexOf(search) !== -1) || (typeof value === 'object' && value.toString().indexOf(search.match(/.{1}/g).join(',')) !== -1));
     }
   },
   created() {

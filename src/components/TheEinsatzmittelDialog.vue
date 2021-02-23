@@ -10,7 +10,7 @@
         <v-container>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="Name" v-model="changedEm.einsatzmittel"></v-text-field>
+              <v-text-field label="Name" v-model="changedEm.name"></v-text-field>
             </v-col>
           </v-row>
           <v-row>
@@ -38,21 +38,24 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { ipcRenderer } from 'electron';
+import Decoder from '@/utils/decoder/decoder';
+import { Einsatzmittel, ValidatedTonfolge } from '@/types';
 
 export default Vue.extend({
   name: 'EinsatzmittelDialog',
   data: () => ({
     changedEm: {
       _id: '',
-      einsatzmittel: '',
-      tonfolge: [] as Array<number | string> | string
+      name: '',
+      kanal: '',
+      tonfolge: '' as Array<number | string> | string
     }
   }),
   props: {
     dialog: { type: Boolean, required: true },
     em: { required: false },
-    tf: { type: Array, required: false }
+    tf: { type: Array, required: false },
+    kanal: String
   },
   computed: {
     show: {
@@ -66,20 +69,17 @@ export default Vue.extend({
   },
   methods: {
     saveEm() {
+      const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.kanal);
       if (typeof this.changedEm.tonfolge == 'string') {
         this.changedEm.tonfolge = this.changedEm.tonfolge.split('').map((str: string) => parseInt(str));
       }
       if (this.em) {
-        Object.assign(this.em, this.changedEm);
-        ipcRenderer.send('editEm', this.changedEm);
+        decoder.db.editEm(this.changedEm as Einsatzmittel);
       } else {
-        ipcRenderer.send('addEm', {
-          einsatzmittel: this.changedEm.einsatzmittel,
-          tonfolge: this.changedEm.tonfolge
-        });
+        decoder.db.addEm({ name: this.changedEm.name, kanal: this.kanal, tonfolge: this.changedEm.tonfolge as ValidatedTonfolge });
       }
       this.show = false;
-      ipcRenderer.send('getEm');
+      this.$store.dispatch('updateEinsatzmittelCollection');
     }
   },
   watch: {
@@ -90,16 +90,22 @@ export default Vue.extend({
           this.changedEm.tonfolge = this.changedEm.tonfolge.toString().replace(/,/g, '');
         } else if (this.tf && !this.em) {
           Object.assign(this.changedEm, {
-            _id: null,
-            einsatzmittel: null,
+            name: null,
+            kanal: this.kanal,
             tonfolge: this.tf
           });
           this.changedEm.tonfolge = this.changedEm.tonfolge.toString().replace(/,/g, '');
+        } else {
+          Object.assign(this.changedEm, {
+            name: null,
+            kanal: this.kanal,
+            tonfolge: null
+          });
         }
       } else {
         this.changedEm = {
-          _id: '',
-          einsatzmittel: '',
+          name: '',
+          kanal: this.kanal,
           tonfolge: ''
         };
       }

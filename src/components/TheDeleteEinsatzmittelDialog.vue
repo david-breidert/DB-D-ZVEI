@@ -2,9 +2,7 @@
   <v-dialog v-model="show" width="50vw">
     <v-card>
       <v-card-title class="headline">
-        <p style="word-break: keep-all;">
-          Wollen Sie {{ em ? em.einsatzmittel : '' }} wirklich löschen?
-        </p>
+        <p style="word-break: keep-all;">Wollen Sie {{ em ? em.name : '' }} wirklich löschen?</p>
       </v-card-title>
 
       <v-divider></v-divider>
@@ -22,31 +20,33 @@
   </v-dialog>
 </template>
 
-<script>
-import { ipcRenderer } from 'electron'
+<script lang="ts">
+import Decoder from '@/utils/decoder/decoder';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'DeleteEinsatzmittelDialog',
-  props: ['dialog', 'em'],
+  props: ['dialog', 'em', 'kanal'],
   computed: {
     show: {
-      get() {
-        return this.dialog
+      get(): boolean {
+        return this.dialog;
       },
-      set(value) {
-        this.$emit('input', value)
+      set(value: boolean): void {
+        this.$emit('input', value);
       }
     }
   },
   methods: {
     deleteEm() {
-      console.log(this.em)
-      ipcRenderer.send('deleteEm', this.em)
-      this.$emit('deleteEm', this.em)
-      this.show = false
+      const decoder: Decoder = this.$store.getters.getDecoderByKanal(this.kanal);
+      console.log(this.em);
+      decoder.db.deleteEm(this.em);
+      this.show = false;
+      this.$store.dispatch('updateEinsatzmittelCollection');
     }
   }
-}
+});
 </script>
 
 <style scoped></style>
