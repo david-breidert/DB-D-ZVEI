@@ -76,7 +76,8 @@ export default class EinsatzmittelDatabase {
     });
   }
   deleteDB() {
-    fs.rm(path.join(remote.app.getPath('userData'), 'em' + this.kanal + '.db'), () => {
+    console.log(path.join(remote.app.getPath('userData'), 'em' + this.kanal + '.db'));
+    fs.unlink(path.join(remote.app.getPath('userData'), 'em' + this.kanal + '.db'), () => {
       console.log('Successfuly deleted database file');
     });
   }

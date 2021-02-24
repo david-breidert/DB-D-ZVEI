@@ -22,28 +22,39 @@
               </v-list-item-action>
             </v-list-item>
             <v-list-item>
-              <v-btn block outlined color="error">Decoder löschen<v-icon right>mdi-delete</v-icon></v-btn>
+              <v-btn block outlined color="error" @click="showDeleteDecoderDialog(decoder)">Decoder löschen<v-icon right>mdi-delete</v-icon></v-btn>
             </v-list-item>
           </v-list>
         </v-card>
       </v-col>
       <v-col cols="12" lg="6" xl="4" v-if="getAllDecoders.length < 2">
         <v-row>
-          <v-col class="mx-6"> <v-btn x-large block outlined>ADD DECODER</v-btn></v-col>
+          <v-col class="mx-6"> <v-btn x-large block outlined @click="showDecoderDialog">Decoder hinzufügen</v-btn></v-col>
         </v-row>
       </v-col>
     </v-row>
+    <TheDecoderDialog v-model="decoderDialog" :dialog="decoderDialog" />
+    <TheDeleteDecoderDialog v-model="deleteDecoderDialog" :decoder="selectedDecoder" :dialog="deleteDecoderDialog" />
   </v-sheet>
 </template>
 <script lang="ts">
 import Decoder from '@/utils/decoder/decoder';
+import TheDecoderDialog from '@/components/TheDecoderDialog.vue';
+import TheDeleteDecoderDialog from '@/components/TheDeleteDecoderDialog.vue';
 import Vue from 'vue';
 
 import { mapGetters } from 'vuex';
 
 export default Vue.extend({
+  components: {
+    TheDecoderDialog,
+    TheDeleteDecoderDialog
+  },
   data: () => ({
-    inputDevices: new Array<MediaDeviceInfo>()
+    inputDevices: new Array<MediaDeviceInfo>(),
+    decoderDialog: false,
+    deleteDecoderDialog: false,
+    selectedDecoder: undefined as Decoder | undefined
   }),
   computed: {
     ...mapGetters(['getAllDecoders'])
@@ -61,9 +72,12 @@ export default Vue.extend({
         decoder.inputId = micId;
       }
     },
-    deleteDecoder(decoder: Decoder) {
-      this.$store.dispatch('removeDecoder', decoder);
-      decoder.db.deleteDB();
+    showDecoderDialog() {
+      this.decoderDialog = true;
+    },
+    showDeleteDecoderDialog(decoder: Decoder) {
+      this.selectedDecoder = decoder;
+      this.deleteDecoderDialog = true;
     }
   },
   async mounted() {
