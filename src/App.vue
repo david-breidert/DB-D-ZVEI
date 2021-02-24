@@ -16,7 +16,9 @@ import Vue from 'vue';
 import Decoder from './utils/decoder/decoder';
 import AppUpdateDialog from './components/AppUpdateDialog.vue';
 import AppHeader from './components/AppHeader.vue';
+import settings from 'electron-settings';
 import AppSideBar from './components/AppSideBar.vue';
+import { mapGetters } from 'vuex';
 
 export default Vue.extend({
   name: 'App',
@@ -25,30 +27,35 @@ export default Vue.extend({
     AppUpdateDialog,
     AppSideBar
   },
+  computed: {
+    ...mapGetters(['getDecoderSettings'])
+  },
   data: () => ({
     decoders: new Array<Decoder>(),
     isUpdateAvailable: false
   }),
-  mounted() {
-    const ch357 = new Decoder('357');
-    ch357.onReceived = () => {
-      this.$store.dispatch('updateLastTimeReceived', Date.now());
-    };
-    ch357.onTonfolge = (kanal, tonfolge) => {
-      this.$store.dispatch('addAlarm', { kanal, tonfolge });
-    };
-    this.decoders.push(ch357);
-    const ch455 = new Decoder('455');
-    ch455.onReceived = () => {
-      this.$store.dispatch('updateLastTimeReceived', Date.now());
-    };
-    ch455.onTonfolge = (kanal, tonfolge) => {
-      this.$store.dispatch('addAlarm', { kanal, tonfolge });
-    };
-    this.decoders.push(ch455);
-    this.decoders.forEach(decoder => {
-      decoder.start();
-      this.$store.dispatch('addDecoder', decoder);
+  watch: {
+    getDecoderSettings: {
+      handler: function(): void {
+        settings.set('decoders', this.getDecoderSettings);
+      },
+      deep: true
+    }
+  },
+  async mounted() {
+    const decoderSettings = (await settings.get('decoders')) as Array<{ kanal: string; inputId: string | undefined; running: boolean }>;
+    decoderSettings.forEach(ds => {
+      const d = new Decoder(ds.kanal, ds.inputId);
+      d.onReceived = () => {
+        //   this.$store.dispatch('updateLastTimeReceived', Date.now());
+      };
+      d.onTonfolge = (kanal, tonfolge) => {
+        this.$store.dispatch('addAlarm', { kanal, tonfolge });
+      };
+      if (ds.running) {
+        d.start();
+      }
+      this.$store.dispatch('addDecoder', d);
     });
     this.$store.dispatch('updateEinsatzmittelCollection');
   }

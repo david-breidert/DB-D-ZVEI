@@ -123,32 +123,3 @@ ipcMain.on('minimize-window', event => {
   const win = BrowserWindow.fromId(event.frameId);
   if (win) win.minimize();
 });
-
-ipcMain.on('getEm', (evt, searchObj) => {
-  db.find(searchObj, (err: Error | null, docs: Array<object>) => {
-    if (err) {
-      throw err;
-    }
-    console.log(docs);
-    evt.reply('postEm', docs);
-  });
-});
-
-ipcMain.on('addEm', (evt, em) => {
-  console.log('Inserting EM');
-  db.insert(em, (err: Error | null, newEm: object) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Replying with: ' + newEm);
-    evt.reply('emAdded', newEm);
-  });
-});
-ipcMain.on('editEm', (evt, em) => {
-  console.log('Updating EM');
-  db.update({ _id: em._id }, em);
-});
-ipcMain.on('deleteEm', (evt, em) => {
-  console.log('Deleting EM ' + em._id);
-  db.remove({ _id: em._id });
-});

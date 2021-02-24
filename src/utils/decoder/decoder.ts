@@ -3,7 +3,7 @@ import { getCurrentFrequencyFft, getTonNummer, getValidatedTonfolge } from './de
 import EinsatzmittelDatabase from './einsatzmittelDatabase';
 
 export default class Decoder {
-  microphoneId: string;
+  inputId: string | undefined;
   kanal: string;
   audioStream: MediaStream | undefined;
   audioContext = new AudioContext();
@@ -16,8 +16,8 @@ export default class Decoder {
   maxTonCount = 11;
   running = false;
 
-  constructor(kanal: string, mediaDeviceId?: string) {
-    this.microphoneId = mediaDeviceId || 'default';
+  constructor(kanal: string, inputId?: string) {
+    this.inputId = inputId;
     this.kanal = kanal;
     this.audioAnalyser.minDecibels = -40;
     this.audioAnalyser.maxDecibels = -10;
@@ -26,57 +26,63 @@ export default class Decoder {
   }
 
   async start() {
-    this.running = true;
-    this.audioStream = await navigator.mediaDevices.getUserMedia({
-      audio: { deviceId: this.microphoneId }
-    });
-    this.audioContext.createMediaStreamSource(this.audioStream).connect(this.audioAnalyser);
+    if (this.inputId) {
+      this.running = true;
+      this.audioStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: this.inputId }
+      });
+      this.audioContext.createMediaStreamSource(this.audioStream).connect(this.audioAnalyser);
 
-    let tonFolgeGesamt: Tonfolge = [];
-    let zeitLetzterTon = 0;
+      let tonFolgeGesamt: Tonfolge = [];
+      let zeitLetzterTon = 0;
 
-    const updateData = () => {
-      const currentFrequency = getCurrentFrequencyFft(this.audioContext, this.audioAnalyser);
-      if (currentFrequency !== -1) {
-        if (this.onReceived) this.onReceived();
-        const currentTon = getTonNummer(currentFrequency);
-        if (currentTon !== -1) {
-          tonFolgeGesamt.push(currentTon);
-          zeitLetzterTon = Date.now();
-          if (tonFolgeGesamt.length === 1) {
-            setTimeout(() => {
-              let tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
-              if (tonfolge == null && Date.now() - zeitLetzterTon <= 150) {
-                const intervallCheck = setInterval(() => {
-                  tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
-                  if (tonfolge != null) {
-                    console.log('Tonfolge durch IntervallCheck ermittelt: ' + tonfolge);
-                    this.onTonfolge(this.kanal, tonfolge);
-                    clearInterval(intervallCheck);
-                    tonFolgeGesamt = [];
-                  } else if (tonfolge == null && Date.now() - zeitLetzterTon > 210) {
-                    clearInterval(intervallCheck);
-                    tonFolgeGesamt = [];
-                  }
-                }, 140);
-              } else if (tonfolge != null) {
-                console.log('Tonfolge ermittelt: ' + tonfolge);
-                this.onTonfolge(this.kanal, tonfolge);
-                tonFolgeGesamt = [];
-              } else {
-                tonFolgeGesamt = [];
-              }
-            }, 600);
+      const updateData = () => {
+        const currentFrequency = getCurrentFrequencyFft(this.audioContext, this.audioAnalyser);
+        if (currentFrequency !== -1) {
+          if (this.onReceived) this.onReceived();
+          const currentTon = getTonNummer(currentFrequency);
+          if (currentTon !== -1) {
+            console.log(currentTon);
+
+            tonFolgeGesamt.push(currentTon);
+            zeitLetzterTon = Date.now();
+            if (tonFolgeGesamt.length === 1) {
+              setTimeout(() => {
+                let tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
+                if (tonfolge == null && Date.now() - zeitLetzterTon <= 150) {
+                  const intervallCheck = setInterval(() => {
+                    tonfolge = getValidatedTonfolge(tonFolgeGesamt, this.minTonCount, this.maxTonCount);
+                    if (tonfolge != null) {
+                      console.log('Tonfolge durch IntervallCheck ermittelt: ' + tonfolge);
+                      this.onTonfolge(this.kanal, tonfolge);
+                      clearInterval(intervallCheck);
+                      tonFolgeGesamt = [];
+                    } else if (tonfolge == null && Date.now() - zeitLetzterTon > 210) {
+                      clearInterval(intervallCheck);
+                      tonFolgeGesamt = [];
+                    }
+                  }, 140);
+                } else if (tonfolge != null) {
+                  console.log('Tonfolge ermittelt: ' + tonfolge);
+                  this.onTonfolge(this.kanal, tonfolge);
+                  tonFolgeGesamt = [];
+                } else {
+                  tonFolgeGesamt = [];
+                }
+              }, 600);
+            }
           }
         }
-      }
-    };
+      };
 
-    this.interval = window.setInterval(() => {
-      updateData();
-    }, 10);
+      this.interval = window.setInterval(() => {
+        updateData();
+      }, 10);
 
-    console.log('Decoder started on channel: ' + this.kanal);
+      console.log('Decoder started on channel: ' + this.kanal);
+    } else {
+      console.log('Decoder can not start. No Input device specified!');
+    }
   }
 
   onTonfolge(kanal: string, tonfolge: ValidatedTonfolge) {
@@ -88,8 +94,10 @@ export default class Decoder {
   }
 
   stop() {
-    clearInterval(this.interval);
-    console.log('Decoder stopped on channel: ' + this.kanal);
-    this.running = false;
+    if (this.running) {
+      clearInterval(this.interval);
+      console.log('Decoder stopped on channel: ' + this.kanal);
+      this.running = false;
+    }
   }
 }

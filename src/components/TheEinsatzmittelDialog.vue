@@ -2,7 +2,7 @@
   <v-dialog v-model="show" width="500">
     <v-card>
       <v-card-title class="headline">
-        {{ changedEm.einsatzmittel ? changedEm.einsatzmittel + ' bearbeiten' : 'Neues Einsatzmittel' }}
+        {{ em ? em.name + ' bearbeiten' : 'Neues Einsatzmittel' }}
       </v-card-title>
       <v-divider></v-divider>
 
@@ -104,6 +104,7 @@ export default Vue.extend({
         }
       } else {
         this.changedEm = {
+          _id: '',
           name: '',
           kanal: this.kanal,
           tonfolge: ''

@@ -8,7 +8,7 @@ Vue.use(Vuex);
 
 export type RootState = {
   lastTimeReceived: number;
-  decoders: Array<Decoder>;
+  decoders: [Decoder?, Decoder?];
 };
 
 const store: StoreOptions<RootState> = {
@@ -21,17 +21,19 @@ const store: StoreOptions<RootState> = {
       state.lastTimeReceived = time;
     },
     ADD_DECODER_TO_DECODERS(state, decoder) {
-      state.decoders.push(decoder);
+      if (state.decoders.length < 2) state.decoders.push(decoder);
     },
     REMOVE_DECODER_FROM_DECODERS(state, decoder: Decoder) {
-      const i = state.decoders.findIndex(d => d.kanal == decoder.kanal);
+      const i = state.decoders.findIndex(d => {
+        if (d) return d.kanal == decoder.kanal;
+      });
       if (i) state.decoders.splice(i, 1);
     }
   },
   actions: {
-    updateLastTimeReceived(context, time) {
-      // context.commit('SET_LAST_TIME_RECEIVED', time);
-    },
+    // updateLastTimeReceived(context, time) {
+    //   context.commit('SET_LAST_TIME_RECEIVED', time);
+    // },
     changeTheme(context) {
       console.log('Switching theme');
       context.commit('SWITCH_THEME');
@@ -51,8 +53,17 @@ const store: StoreOptions<RootState> = {
     getAllDecoders(state) {
       return state.decoders;
     },
+    getDecoderSettings(state, getters) {
+      const decoderSettings = new Array<{ kanal: string; inputId: string | undefined; running: boolean }>();
+      getters.getAllDecoders.forEach((d: Decoder) => decoderSettings.push({ kanal: d.kanal, inputId: d.inputId, running: d.running }));
+      return decoderSettings;
+    },
     getDecoderByKanal: state => (kanal: string) => {
-      return state.decoders.find(d => d.kanal == kanal);
+      if (state.decoders.length > 0) {
+        return state.decoders.find(d => {
+          if (d) return d.kanal == kanal;
+        });
+      }
     }
   },
   modules: {

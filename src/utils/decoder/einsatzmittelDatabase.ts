@@ -1,5 +1,6 @@
 import Datastore from 'nedb';
 import path from 'path';
+import fs from 'fs';
 import { remote } from 'electron';
 import { Einsatzmittel, ValidatedTonfolge } from '@/types';
 
@@ -72,6 +73,11 @@ export default class EinsatzmittelDatabase {
     this.db.remove({ _id: em._id }, {}, (err, n) => {
       if (err) throw err;
       console.log('Successfully deleted one EM from the database, ID: ' + em._id);
+    });
+  }
+  deleteDB() {
+    fs.rm(path.join(remote.app.getPath('userData'), 'em' + this.kanal + '.db'), () => {
+      console.log('Successfuly deleted database file');
     });
   }
 }
