@@ -24,10 +24,17 @@ const store: StoreOptions<RootState> = {
       if (state.decoders.length < 2) state.decoders.push(decoder);
     },
     REMOVE_DECODER_FROM_DECODERS(state, decoder: Decoder) {
+      console.log('trying to remove decoder');
       const i = state.decoders.findIndex(d => {
         if (d) return d.kanal == decoder.kanal;
       });
-      if (i) state.decoders.splice(i, 1);
+      console.log(i);
+      if (state.decoders.length == 1 || i == 0) {
+        state.decoders.shift();
+      } else {
+        if (i) state.decoders.splice(i, 1);
+      }
+      console.log(state.decoders);
     }
   },
   actions: {

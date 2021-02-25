@@ -20,7 +20,7 @@
       <template v-slot:top>
         <v-row no-gutters class="flex-nowrap">
           <v-col class="d-flex justify-center align-center">
-            <v-select hide-details dense v-model="selectedKanal" :items="getAlleEm" item-text="kanal" solo flat></v-select>
+            <v-select hide-details dense v-model="selectedKanal" :items="getAllDecoders" item-text="kanal" solo flat></v-select>
           </v-col>
           <v-col md="9" sm="8">
             <v-text-field v-model="search" id="search" :append-icon="search ? '' : 'mdi-magnify'" hide-details dense solo flat clearable class="ma-3"> </v-text-field>
@@ -63,8 +63,9 @@ import TheDeleteEinsatzmittelDialog from '@/components/TheDeleteEinsatzmittelDia
 import { mapGetters } from 'vuex';
 import Decoder from '@/utils/decoder/decoder';
 import { Einsatzmittel } from '@/types';
+import Vue from 'vue';
 
-export default {
+export default Vue.extend({
   name: 'EinsatzmittelTabelle',
   components: { TheDeleteEinsatzmittelDialog, TheEinsatzmittelDialog },
   data: () => ({
@@ -85,10 +86,10 @@ export default {
     deleteDialog: false
   }),
   computed: {
-    ...mapGetters(['getAlleEm']),
-    getDataTableEm() {
+    ...mapGetters(['getAlleEm', 'getAllDecoders']),
+    getDataTableEm(): Array<Einsatzmittel> {
       if (this.getAlleEm) {
-        const alleEm = this.getAlleEm[this.getAlleEm.findIndex(o => o.kanal == this.selectedKanal)];
+        const alleEm = this.getAlleEm[this.getAlleEm.findIndex((o: Einsatzmittel) => o.kanal == this.selectedKanal)];
         if (alleEm) {
           return alleEm.einsatzmittel;
         } else return [];
@@ -138,7 +139,7 @@ export default {
   created() {
     this.$store.dispatch('updateEinsatzmittelCollection');
   }
-};
+});
 </script>
 
 <style lang="scss" scoped>

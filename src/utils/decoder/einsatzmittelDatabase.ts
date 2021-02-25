@@ -70,7 +70,7 @@ export default class EinsatzmittelDatabase {
    * @param em Einsatzmittel to be deleted from the database
    */
   deleteEm(em: Einsatzmittel) {
-    this.db.remove({ _id: em._id }, {}, (err, n) => {
+    this.db.remove({ _id: em._id }, {}, err => {
       if (err) throw err;
       console.log('Successfully deleted one EM from the database, ID: ' + em._id);
     });
